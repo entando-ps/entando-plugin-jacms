@@ -125,59 +125,6 @@
 
     </package>
 
-    <package name="jacms_do/jacms/Content/Group" namespace="/do/jacms/Content/Group" extends="jacms_do/jacms/Content/BulkBase">
-
-        <action name="entry" class="jacmsContentGroupBulkAction" method="entry" >
-            <result name="list" type="chain">
-                <param name="namespace">/do/jacms/Content</param>
-                <param name="actionName">results</param>
-            </result>
-            <result type="tiles">admin.jacms.content.bulkGroup.entryChoice</result>
-            <interceptor-ref name="entandoDefaultStack">
-                <param name="requestAuth.requiredPermission">editContents</param>
-            </interceptor-ref>
-        </action>
-
-        <action name="join*" class="jacmsContentGroupBulkAction" method="join">
-            <result type="tiles">admin.jacms.content.bulkGroup.entryChoice</result>
-            <interceptor-ref name="entandoDefaultStack">
-                <param name="requestAuth.requiredPermission">editContents</param>
-            </interceptor-ref>
-        </action>
-
-        <action name="disjoin*" class="jacmsContentGroupBulkAction" method="disjoin">
-            <result type="tiles">admin.jacms.content.bulkGroup.entryChoice</result>
-            <interceptor-ref name="entandoDefaultStack">
-                <param name="requestAuth.requiredPermission">editContents</param>
-            </interceptor-ref>
-        </action>
-
-        <action name="checkApply" class="jacmsContentGroupBulkAction" method="checkApply">
-            <result name="input" type="tiles">admin.jacms.content.bulkGroup.entryChoice</result>
-            <result type="tiles">admin.jacms.content.bulkGroup.entryConfirm</result>
-            <interceptor-ref name="entandoDefaultStack">
-                <param name="requestAuth.requiredPermission">editContents</param>
-            </interceptor-ref>
-        </action>
-
-        <action name="apply" class="jacmsContentGroupBulkAction" method="apply">
-            <result name="list" type="chain">
-                <param name="namespace">/do/jacms/Content</param>
-                <param name="actionName">results</param>
-            </result>
-            <result name="input" type="tiles">admin.jacms.content.bulkGroup.entryChoice</result>
-            <result type="redirectAction">
-                <param name="actionName">viewResult</param>
-                <param name="commandId">${commandId}</param>
-                <param name="strutsAction">${strutsAction}</param>
-            </result>
-            <interceptor-ref name="entandoDefaultStack">
-                <param name="requestAuth.requiredPermission">editContents</param>
-            </interceptor-ref>
-        </action>
-
-    </package>
-
     <package name="jacms_do/jacms/Content/Category" namespace="/do/jacms/Content/Category" extends="jacms_do/jacms/Content/BulkBase">
 
         <action name="entry" class="jacmsContentCategoryBulkAction" method="entry" >

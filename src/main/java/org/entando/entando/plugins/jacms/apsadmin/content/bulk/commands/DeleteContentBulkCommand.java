@@ -11,11 +11,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
-package org.entando.entando.plugins.jacms.aps.system.services.content.command;
-
-import org.entando.entando.aps.system.common.command.constants.ApsCommandErrorCode;
-import org.entando.entando.plugins.jacms.aps.system.services.content.command.common.BaseContentBulkCommand;
-import org.entando.entando.plugins.jacms.aps.system.services.content.command.common.ContentBulkCommandContext;
+package org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands;
 
 import org.entando.entando.ent.exception.EntException;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
@@ -33,13 +29,12 @@ public class DeleteContentBulkCommand extends BaseContentBulkCommand<ContentBulk
 	@Override
 	protected boolean apply(Content content) throws EntException {
 		if (content.isOnLine()) {
-			this.getTracer().traceError(content.getId(), ApsCommandErrorCode.NOT_APPLICABLE);
+			this.getErrors().put(content.getId(), ApsCommandErrorCode.NOT_APPLICABLE);
 			return false;
 		} else {
 			this.getApplier().deleteContent(content);
-			this.getTracer().traceSuccess(content.getId());
 			return true;
 		}
 	}
-
+    
 }
