@@ -71,6 +71,7 @@ public abstract class BaseBulkCommand<I, A, C extends BulkCommandContext<I>> imp
         report.setErrors(this.getErrors());
         report.setSuccesses(this.getSuccesses());
         report.setTotal(this.getItems().size());
+        report.setCommandName(this.getName());
         return report;
     }
     
@@ -106,26 +107,7 @@ public abstract class BaseBulkCommand<I, A, C extends BulkCommandContext<I>> imp
 	public int getTotal() {
 		return this.getItems().size();
 	}
-    /*
-	public AtomicInteger getApplySuccesses() {
-		return _applySuccesses;
-	}
-	protected void setApplySuccesses(AtomicInteger applySuccesses) {
-		this._applySuccesses = applySuccesses;
-	}
-	public AtomicInteger getApplyErrors() {
-		return applyErrors;
-	}
-	protected void setApplyErrors(AtomicInteger applyErrors) {
-		this.applyErrors = applyErrors;
-	}
-    */
-/*
-	@Override
-	public ApsCommandStatus getStatus() {
-		return _status;
-	}
-    */
+    
 	/**
 	 * Sets the status of the command execution.
 	 * @param status The status of the command execution.
@@ -170,8 +152,6 @@ public abstract class BaseBulkCommand<I, A, C extends BulkCommandContext<I>> imp
     }
     
 	private A _applier;
-	//private AtomicInteger applySuccesses = new AtomicInteger(0);
-	//private AtomicInteger applyErrors = new AtomicInteger(0);
 	private Date endingTime;
 	private volatile ApsCommandStatus _status = ApsCommandStatus.NEW;
 	

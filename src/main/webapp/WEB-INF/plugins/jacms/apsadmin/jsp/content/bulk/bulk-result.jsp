@@ -2,7 +2,9 @@
 <%@ taglib prefix="wpsf" uri="/apsadmin-form" %>
 <%@ taglib prefix="jacmswpsa" uri="/jacms-apsadmin-core" %>
 
-<s:set var="labelTitle" value="%{getText('title.bulk.' + #command.name)}"/>
+<s:set var="report" value="%{getReport()}" />
+
+<s:set var="labelTitle" value="%{getText('title.bulk.' + #report.commandName)}"/>
 
 <!-- Admin console Breadcrumbs -->
 <ol class="breadcrumb page-tabs-header breadcrumb-position">
@@ -30,8 +32,6 @@
 
     <div class="alert alert-success mt-20">
         <span class="pficon pficon-ok"></span>
-
-        <s:set var="report" value="%{getReport()}" />
         <%--
         <p>
             <strong><s:text name="label.bulk.status" /></strong>: <s:text name="name.bulk.status.%{#command.status}" />
@@ -74,7 +74,7 @@
             <ul>
                 <s:iterator var="error" value="%{#report.errors}" >
                     <jacmswpsa:content contentId="${error.key}" var="content" workVersion="true" />
-                    <s:text name="error.bulk.%{#command.name}.%{#error.value}" var="errorDescr" />
+                    <s:text name="error.bulk.%{#report.commandName}.%{#error.value}" var="errorDescr" />
                     <li>
                         <s:text name="label.bulk.report.error" >
                             <s:param name="content" value="%{#content.description}" />
