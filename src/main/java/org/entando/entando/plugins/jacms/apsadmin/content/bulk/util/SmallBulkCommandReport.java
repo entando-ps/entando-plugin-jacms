@@ -14,8 +14,7 @@
 package org.entando.entando.plugins.jacms.apsadmin.content.bulk.util;
 
 import java.util.Date;
-
-import org.entando.entando.aps.system.common.command.constants.ApsCommandStatus;
+import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.ApsCommandStatus;
 
 public class SmallBulkCommandReport {
 	

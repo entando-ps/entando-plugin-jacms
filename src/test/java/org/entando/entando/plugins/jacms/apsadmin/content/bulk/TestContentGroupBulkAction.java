@@ -13,34 +13,68 @@
  */
 package org.entando.entando.plugins.jacms.apsadmin.content.bulk;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.entando.entando.aps.system.common.command.constants.ApsCommandStatus;
-import org.entando.entando.aps.system.common.command.report.BulkCommandReport;
-import org.entando.entando.aps.system.services.command.IBulkCommandManager;
-import org.entando.entando.plugins.jacms.apsadmin.content.bulk.util.IContentBulkActionHelper;
-
-import com.agiletec.aps.system.SystemConstants;
-import org.entando.entando.ent.exception.EntException;
 import com.agiletec.apsadmin.ApsAdminBaseTestCase;
-import com.agiletec.apsadmin.system.ApsAdminSystemConstants;
-import com.agiletec.apsadmin.system.BaseAction;
 import com.agiletec.plugins.jacms.aps.system.JacmsSystemConstants;
 import com.agiletec.plugins.jacms.aps.system.services.content.IContentManager;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
 import com.opensymphony.xwork2.Action;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import org.entando.entando.ent.exception.EntException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class TestContentGroupBulkAction extends ApsAdminBaseTestCase {
-
+    
+    @Test
+    void testApplyAddRemove() throws Throwable {
+		String currentUser = "admin";
+		int size = 8;
+		List<String> contentList = null;
+		try {
+            contentList = this.addContents("ART1", size);
+			String[] contentIds = contentList.toArray(new String[0]);
+			String result = this.executeGroupAction(currentUser, "applyOnline", contentIds);
+			Assertions.assertEquals(Action.SUCCESS, result);
+            
+			ContentBulkAction action = (ContentBulkAction) this.getAction();
+			this.checkItems(contentIds, action.getSelectedIds());
+            
+            for (int i = 0; i < contentList.size(); i++) {
+                String newId = contentList.get(i);
+                Assertions.assertNotNull(this._contentManager.loadContent(newId, true));
+            }
+            
+            result = this.executeGroupAction(currentUser, "applyOffline", contentIds);
+			Assertions.assertEquals(Action.SUCCESS, result);
+            
+            for (int i = 0; i < contentList.size(); i++) {
+                String newId = contentList.get(i);
+                Assertions.assertNotNull(this._contentManager.loadContent(newId, false));
+                Assertions.assertNull(this._contentManager.loadContent(newId, true));
+            }
+            
+            result = this.executeGroupAction(currentUser, "applyRemove", contentIds);
+			Assertions.assertEquals(Action.SUCCESS, result);
+            
+            for (int i = 0; i < contentList.size(); i++) {
+                String newId = contentList.get(i);
+                Assertions.assertNull(this._contentManager.loadContent(newId, false));
+            }
+            
+		} catch (Exception e) {
+			this.deleteContents(contentList);
+            throw e;
+		}
+	}
+    
+    
+    
+    
+    
+    /*
 	@Test
     void testUserNotAllowed() throws Throwable {
 		String[] contentIds = {"ART1", "RAH101", "EVN103"};
@@ -176,35 +210,35 @@ class TestContentGroupBulkAction extends ApsAdminBaseTestCase {
 			}
 		}
 	}
-
+*/
 	private List<String> addContents(String masterContentId, int size) throws EntException {
-		List<String> contentIds = new ArrayList<String>(size);
+		List<String> contentIds = new ArrayList<>(size);
 		for (int i = 0; i < size; i++) {
 			Content current = this._contentManager.loadContent(masterContentId, false);
 			current.setId(null);
 			this._contentManager.addContent(current);
 			contentIds.add(current.getId());
-			if (i % 2 == 0) {
-				this._contentManager.insertOnLineContent(current);
-			}
 		}
 		return contentIds;
 	}
 	
-	private void deleteContents(List<String> contentIds) throws EntException {
-		for (String contentId : contentIds) {
-			Content current = this._contentManager.loadContent(contentId, false);
-			this._contentManager.deleteContent(current);
-		}
-	}
+    private void deleteContents(List<String> contentIds) throws EntException {
+        for (String contentId : contentIds) {
+            Content current = this._contentManager.loadContent(contentId, false);
+            if (null != current) {
+                this._contentManager.removeOnLineContent(current);
+                this._contentManager.deleteContent(current);
+            }
+        }
+    }
 	
 	private void checkItems(String[] expected, Collection<?> actual) {
-		assertEquals(expected.length, actual.size());
+        Assertions.assertEquals(expected.length, actual.size());
 		for (Object current : expected) {
-			assertTrue(actual.contains(current));
+			Assertions.assertTrue(actual.contains(current));
 		}
 	}
-	
+	/*
 	private String executeEntry(String currentUser, int strutsAction, String[] contentIds) throws Throwable {
 		return this.executeGroupAction(currentUser, "entry", strutsAction, contentIds, null, null);
 	}
@@ -232,24 +266,20 @@ class TestContentGroupBulkAction extends ApsAdminBaseTestCase {
 	private String executeViewResult(String currentUser, String commandId) throws Throwable {
 		return this.executeCommandAction(currentUser, "viewResult", commandId);
 	}
-	
-	private String executeCommandAction(String currentUser, String actionName, String commandId) throws Throwable {
+	*/
+	private String executeCommandAction(String currentUser, String actionName) throws Throwable {
 		this.setUserOnSession(currentUser);
 		this.initAction(NAMESPACE, actionName);
-		this.addParameter("commandId", commandId);
 		return this.executeAction();
 	}
 	
-	private String executeGroupAction(String currentUser, String actionName, int strutsAction, String[] contentIds, String[] groupCodes, String groupName) throws Throwable {
+	private String executeGroupAction(String currentUser, String actionName, String[] contentIds) throws Throwable {
 		this.setUserOnSession(currentUser);
 		this.initAction(NAMESPACE, actionName);
-		this.addParameter("strutsAction", strutsAction);
 		this.addParameter("selectedIds", contentIds);
-		this.addParameter("extraGroupNames", groupCodes);
-		this.addParameter("groupName", groupName);
 		return this.executeAction();
 	}
-	
+	/*
 	private void checkReport(String commandId, int total, int applyTotal, int applySuccesses, int applyErrors, ApsCommandStatus status) {
 		BulkCommandReport<?> report = this._bulkCommandManager.getCommandReport(IContentBulkActionHelper.BULK_COMMAND_OWNER, commandId);
 		assertEquals(total, report.getTotal());
@@ -263,16 +293,14 @@ class TestContentGroupBulkAction extends ApsAdminBaseTestCase {
 			assertNotNull(report.getEndingTime());
 		}
 	}
-	
+	*/
     @BeforeEach
 	private void init() {
 		this._contentManager = (IContentManager) this.getService(JacmsSystemConstants.CONTENT_MANAGER);
-		this._bulkCommandManager = (IBulkCommandManager) this.getApplicationContext().getBean(SystemConstants.BULK_COMMAND_MANAGER);
 	}
 
 	private IContentManager _contentManager;
-	private IBulkCommandManager _bulkCommandManager;
 	
-	private static final String NAMESPACE = "/do/jacms/Content/Group";
-
+	private static final String NAMESPACE = "/do/jacms/Content/Bulk";
+    
 }

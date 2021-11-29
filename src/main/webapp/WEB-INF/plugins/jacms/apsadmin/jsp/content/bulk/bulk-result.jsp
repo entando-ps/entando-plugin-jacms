@@ -66,7 +66,6 @@
 
             <s:if test="%{#report.endingTime == null}" >
                 <s:form action="viewResult" namespace="/do/jacms/Content/Bulk" method="get" >
-                    <wpsf:hidden name="commandId"/>
                     <s:set var="labelAction" value="%{getText('label.bulk.report.refresh')}"/>
                     <wpsf:submit type="button" title="%{#labelAction}" cssClass="btn btn-success">
                         <span class="icon fa fa-times-circle"></span>
