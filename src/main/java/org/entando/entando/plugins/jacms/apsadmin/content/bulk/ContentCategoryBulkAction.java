@@ -30,10 +30,12 @@ import com.agiletec.apsadmin.system.AbstractTreeAction;
 import com.agiletec.apsadmin.system.ApsAdminSystemConstants;
 import com.agiletec.plugins.jacms.aps.system.services.content.IContentManager;
 import com.opensymphony.xwork2.Action;
+import java.util.Date;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.BaseContentPropertyBulkCommand;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.ContentPropertyBulkCommandContext;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.JoinCategoryBulkCommand;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.RemoveCategoryBulkCommand;
+import org.entando.entando.plugins.jacms.apsadmin.content.bulk.report.DefaultBulkCommandReport;
 
 public class ContentCategoryBulkAction extends AbstractTreeAction {
 
@@ -87,6 +89,8 @@ public class ContentCategoryBulkAction extends AbstractTreeAction {
                     } catch (Exception e) {
                         _logger.error("Error executing " +command.getClass().getName() + " on contents ");
                     }
+                    command.setEndingTime(new Date());
+                    this.setReport(command.getReport());
                 });
 				}
 			}
@@ -108,6 +112,13 @@ public class ContentCategoryBulkAction extends AbstractTreeAction {
         return command;
     }
 
+    public DefaultBulkCommandReport<String> getReport() {
+        return report;
+    }
+    protected void setReport(DefaultBulkCommandReport<String> report) {
+        this.report = report;
+    }
+    
 	public ContentBulkActionSummary getSummary() {
 		return this.getBulkActionHelper().getSummary(this.getSelectedIds());
 	}
@@ -219,5 +230,7 @@ public class ContentCategoryBulkAction extends AbstractTreeAction {
     
 	private IContentManager _contentManager;
 	private IContentBulkActionHelper _bulkActionHelper;
+    
+    private DefaultBulkCommandReport<String> report; 
 
 }

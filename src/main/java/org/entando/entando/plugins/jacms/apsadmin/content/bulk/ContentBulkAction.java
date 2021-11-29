@@ -22,11 +22,13 @@ import org.springframework.web.context.WebApplicationContext;
 import com.agiletec.aps.util.ApsWebApplicationUtils;
 import com.agiletec.apsadmin.system.BaseAction;
 import com.agiletec.plugins.jacms.aps.system.services.content.IContentManager;
+import java.util.Date;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.BaseContentBulkCommand;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.ContentBulkCommandContext;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.DeleteContentBulkCommand;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.InsertOnlineContentBulkCommand;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.RemoveOnlineContentBulkCommand;
+import org.entando.entando.plugins.jacms.apsadmin.content.bulk.report.DefaultBulkCommandReport;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.util.ContentBulkActionSummary;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.util.IContentBulkActionHelper;
 
@@ -50,38 +52,47 @@ public class ContentBulkAction extends BaseAction {
 		return this.apply(DeleteContentBulkCommand.BEAN_NAME);
 	}
 
-	public String apply(String commandBeanName) {
-		try {
-			if (!this.checkAllowedContents()) {
-				return "list";
-			} else {
+    public String apply(String commandBeanName) {
+        try {
+            if (!this.checkAllowedContents()) {
+                return "list";
+            } else {
                 BaseContentBulkCommand<ContentBulkCommandContext> command = this.initBulkCommand(commandBeanName);
                 this.getSelectedIds().parallelStream().forEach(id -> {
                     try {
                         command.apply(id);
                     } catch (Exception e) {
-                        _logger.error("Error executing " +command.getClass().getName() + " on content " + id);
+                        _logger.error("Error executing " + command.getClass().getName() + " on content " + id);
                     }
                 });
-			}
-		} catch (Throwable t) {
-			_logger.error("Error occurred applying command {}", commandBeanName, t);
-			return FAILURE;
-		}
-		return SUCCESS;
-	}
+                command.setEndingTime(new Date());
+                this.setReport(command.getReport());
+            }
+        } catch (Throwable t) {
+            _logger.error("Error occurred applying command {}", commandBeanName, t);
+            return FAILURE;
+        }
+        return SUCCESS;
+    }
 
 	protected BaseContentBulkCommand<ContentBulkCommandContext> initBulkCommand(String commandBeanName) {
 		WebApplicationContext applicationContext = ApsWebApplicationUtils.getWebApplicationContext(this.getRequest());
 		BaseContentBulkCommand<ContentBulkCommandContext> command = (BaseContentBulkCommand<ContentBulkCommandContext>) applicationContext.getBean(commandBeanName);
-		ContentBulkCommandContext context = new ContentBulkCommandContext(this.getSelectedIds(), this.getCurrentUser());
+        ContentBulkCommandContext context = new ContentBulkCommandContext(this.getSelectedIds(), this.getCurrentUser());
 		command.init(context);
 		return command;
 	}
     
 	public String viewResult() {
-		return SUCCESS;//this.getReport() == null ? "expired" : SUCCESS;
+		return this.getReport() == null ? "expired" : SUCCESS;
 	}
+
+    public DefaultBulkCommandReport<String> getReport() {
+        return report;
+    }
+    protected void setReport(DefaultBulkCommandReport<String> report) {
+        this.report = report;
+    }
     
 	public ContentBulkActionSummary getSummary() {
 		return this.getBulkActionHelper().getSummary(this.getSelectedIds());
@@ -116,5 +127,7 @@ public class ContentBulkAction extends BaseAction {
     
 	private IContentManager _contentManager;
 	private IContentBulkActionHelper _bulkActionHelper;
+    
+    private DefaultBulkCommandReport<String> report; 
 
 }

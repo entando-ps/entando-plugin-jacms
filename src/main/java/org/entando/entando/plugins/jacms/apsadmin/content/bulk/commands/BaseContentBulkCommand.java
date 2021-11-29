@@ -33,19 +33,22 @@ import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
 
 public abstract class BaseContentBulkCommand<C extends ContentBulkCommandContext> extends BaseBulkCommand<String, IContentManager, C> implements ApplicationContextAware {
 
-	@Override
-	public boolean apply(String item) throws EntException {
-		boolean performed = false;
-		Content content = this.getContent(item);
-		if (content == null) {
-			this.getErrors().put(item, ApsCommandErrorCode.NOT_FOUND);
-		} else if (!this.isAuthOnContent(content)) {
-			this.getErrors().put(item, ApsCommandErrorCode.USER_NOT_ALLOWED);
-		} else {
-			performed = this.apply(content);
-		}
-		return performed;
-	}
+    @Override
+    public boolean apply(String item) throws EntException {
+        boolean performed = false;
+        Content content = this.getContent(item);
+        if (content == null) {
+            this.getErrors().put(item, ApsCommandErrorCode.NOT_FOUND);
+        } else if (!this.isAuthOnContent(content)) {
+            this.getErrors().put(item, ApsCommandErrorCode.USER_NOT_ALLOWED);
+        } else {
+            performed = this.apply(content);
+        }
+        if (performed) {
+            this.getSuccesses().add(item);
+        }
+        return performed;
+    }
 
 	protected boolean isAuthOnContent(Content content) throws EntException {
 		UserDetails user = this.getCurrentUser();
