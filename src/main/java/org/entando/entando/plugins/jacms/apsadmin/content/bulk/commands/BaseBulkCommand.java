@@ -43,24 +43,6 @@ public abstract class BaseBulkCommand<I, A, C extends BulkCommandContext<I>> imp
 	public void init(C context) {
 		this.setContext(context);
 	}
-
-	/**
-	 * Check the status of the Command before execute the next command on the current item.
-	 * 
-	 * @return True if the command is allowed.
-	 */
-	protected synchronized boolean checkStatus() {
-		boolean allowed = true;
-		if (ApsCommandStatus.NEW.equals(this._status)) {
-			this._status = ApsCommandStatus.RUNNING;
-		} else if (!ApsCommandStatus.RUNNING.equals(this._status)) {
-			allowed = false;
-			if (!ApsCommandStatus.STOPPING.equals(this._status)) {
-				this._status = ApsCommandStatus.STOPPED;
-			}
-		}
-		return allowed;
-	}
     
     public DefaultBulkCommandReport getReport() {
         DefaultBulkCommandReport<I> report = new DefaultBulkCommandReport<>();
@@ -107,14 +89,6 @@ public abstract class BaseBulkCommand<I, A, C extends BulkCommandContext<I>> imp
 	public int getTotal() {
 		return this.getItems().size();
 	}
-    
-	/**
-	 * Sets the status of the command execution.
-	 * @param status The status of the command execution.
-	 */
-	protected void setStatus(ApsCommandStatus status) {
-		this._status = status;
-	}
 
 	@Override
 	public Date getEndingTime() {
@@ -123,11 +97,6 @@ public abstract class BaseBulkCommand<I, A, C extends BulkCommandContext<I>> imp
     @Override
 	public void setEndingTime(Date endingTime) {
 		this.endingTime = endingTime;
-	}
-
-	@Override
-	public boolean isEnded() {
-		return ApsCommandStatus.COMPLETED.equals(this._status) || ApsCommandStatus.STOPPED.equals(this._status);
 	}
 
 	protected C getContext() {
@@ -153,7 +122,6 @@ public abstract class BaseBulkCommand<I, A, C extends BulkCommandContext<I>> imp
     
 	private A _applier;
 	private Date endingTime;
-	private volatile ApsCommandStatus _status = ApsCommandStatus.NEW;
 	
 	private C _context;
     
