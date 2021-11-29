@@ -42,10 +42,4 @@ public interface ApsCommand<C extends BulkCommandContext> {
     
     public void setEndingTime(Date date);
 
-	/**
-	 * Returns true if the Command is ended (whether it has been completed or stopped early), false otherwise.
-	 * @return true if the Command is ended (whether it has been completed or stopped early), false otherwise.
-	 */
-	public boolean isEnded();
-
 }
