@@ -222,7 +222,6 @@ public class ContentCategoryBulkAction extends AbstractTreeAction {
 	private Set<String> _selectedIds;
 
 	private int _strutsAction;
-	//private String _commandId;
 
 	private Set<String> _categoryCodes = new TreeSet<String>();
 	private String _categoryCode;

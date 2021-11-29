@@ -30,6 +30,7 @@ import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.ApsComma
  */
 public class DefaultBulkCommandReport<I> {
     
+    private String commandName;
     private Integer applyTotal;
     private Integer total;
     private Integer applySuccesses;
@@ -37,6 +38,13 @@ public class DefaultBulkCommandReport<I> {
     private Date endingTime;
     private List<I> successes = new ArrayList<>();
     private Map<I, ApsCommandErrorCode> errors = new HashedMap<>();
+
+    public String getCommandName() {
+        return commandName;
+    }
+    public void setCommandName(String commandName) {
+        this.commandName = commandName;
+    }
     
     public Integer getApplyTotal() {
         return applyTotal;
@@ -85,11 +93,6 @@ public class DefaultBulkCommandReport<I> {
     }
     public void setErrors(Map<I, ApsCommandErrorCode> errors) {
         this.errors = errors;
-    }
-
-    @Override
-    public String toString() {
-        return "DefaultBulkCommandReport{" + "applyTotal=" + applyTotal + ", total=" + total + ", applySuccesses=" + applySuccesses + ", applyErrors=" + applyErrors + ", endingTime=" + endingTime + ", successes=" + successes + ", errors=" + errors + '}';
     }
     
 }
