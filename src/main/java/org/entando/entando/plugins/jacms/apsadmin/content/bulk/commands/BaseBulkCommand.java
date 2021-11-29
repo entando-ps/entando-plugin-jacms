@@ -15,13 +15,16 @@ package org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.entando.entando.ent.util.EntLogging.EntLogger;
 import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 
 import org.entando.entando.ent.exception.EntException;
+import org.entando.entando.plugins.jacms.apsadmin.content.bulk.report.DefaultBulkCommandReport;
 
 /**
  * A base class for the execution of a {@link ApsCommand} on multiple items.
@@ -41,36 +44,6 @@ public abstract class BaseBulkCommand<I, A, C extends BulkCommandContext<I>> imp
 		this.setContext(context);
 	}
 
-	@Override
-	public void apply() {
-		if (this.getItems() == null) {
-			this._status = ApsCommandStatus.COMPLETED;
-		} else {
-			for (I item : this.getItems()) {
-				if (this.checkStatus()) {
-					boolean result = false;
-					try {
-						result = this.apply(item);
-					} catch (Throwable t) {
-						this.getErrors().put(item, ApsCommandErrorCode.ERROR);
-						_logger.error("Error performig {} action on {}", this.getClass().getName(), item, t);
-					}
-					if (result) {
-						this._applySuccesses++;
-					} else {
-						this.applyErrors++;
-					}
-				} else {
-					break;
-				}
-			}
-			if (!ApsCommandStatus.STOPPED.equals(this._status)) {
-				this._status = ApsCommandStatus.COMPLETED;
-			}
-			this.setEndingTime(new Date());
-		}
-	}
-
 	/**
 	 * Check the status of the Command before execute the next command on the current item.
 	 * 
@@ -88,38 +61,20 @@ public abstract class BaseBulkCommand<I, A, C extends BulkCommandContext<I>> imp
 		}
 		return allowed;
 	}
-
-	/**
-	 * Apply the command on the given item.
-	 * This method is delegated tracking the outcome of the command.
-	 * 
-	 * @param item The item on which to apply the command.
-	 * @return The result of the command. True in case of success (also with warnings), error instead.
-	 * @throws EntException In case of error during the execution of the command.
-	 */
+    
+    public DefaultBulkCommandReport getReport() {
+        DefaultBulkCommandReport<I> report = new DefaultBulkCommandReport<>();
+        report.setApplyErrors(this.getErrors().size());
+        report.setApplySuccesses(this.getSuccesses().size());
+        report.setApplyTotal(this.getErrors().size() + this.getSuccesses().size());
+        report.setEndingTime(this.getEndingTime());
+        report.setErrors(this.getErrors());
+        report.setSuccesses(this.getSuccesses());
+        report.setTotal(this.getItems().size());
+        return report;
+    }
+    
 	public abstract boolean apply(I item) throws EntException;
-
-	@Override
-	public synchronized void stopCommand() {
-		if (!ApsCommandStatus.COMPLETED.equals(this._status)) {
-			this.setStatus(ApsCommandStatus.STOPPING);
-		}
-	}
-	
-	/**
-	 * Returns the ID of the given command. Can coincide with the thread name.
-	 * @return The ID of the given command.
-	 */
-	public String getId() {
-		return _id;
-	}
-	/**
-	 * Sets the ID of the given command. Can coincide with the thread name.
-	 * @param id The ID of the given command.
-	 */
-	public void setId(String id) {
-		this._id = id;
-	}
 	
 	/**
 	 * Returns the items on which to apply the command.
@@ -151,36 +106,20 @@ public abstract class BaseBulkCommand<I, A, C extends BulkCommandContext<I>> imp
 	public int getTotal() {
 		return this.getItems().size();
 	}
-
-	/**
-	 * Returns the number items onto the command is succesfully applied.
-	 * @return The number items onto the command is succesfully applied.
-	 */
-	public int getApplySuccesses() {
+    /*
+	public AtomicInteger getApplySuccesses() {
 		return _applySuccesses;
 	}
-	/**
-	 * Sets the number items onto the command is succesfully applied.
-	 * @param applySuccesses The number items onto the command is succesfully applied.
-	 */
-	protected void setApplySuccesses(int applySuccesses) {
+	protected void setApplySuccesses(AtomicInteger applySuccesses) {
 		this._applySuccesses = applySuccesses;
 	}
-
-	/**
-	 * Returns the number items onto the command is applied with errors.
-	 * @return The number items onto the command is applied with errors.
-	 */
-	public int getApplyErrors() {
+	public AtomicInteger getApplyErrors() {
 		return applyErrors;
 	}
-	/**
-	 * Sets the number items onto the command is applied with errors.
-	 * @param applyErrors The number items onto the command is applied with errors.
-	 */
-	protected void setApplyErrors(int applyErrors) {
+	protected void setApplyErrors(AtomicInteger applyErrors) {
 		this.applyErrors = applyErrors;
 	}
+    */
 /*
 	@Override
 	public ApsCommandStatus getStatus() {
@@ -199,7 +138,8 @@ public abstract class BaseBulkCommand<I, A, C extends BulkCommandContext<I>> imp
 	public Date getEndingTime() {
 		return endingTime;
 	}
-	protected void setEndingTime(Date endingTime) {
+    @Override
+	public void setEndingTime(Date endingTime) {
 		this.endingTime = endingTime;
 	}
 
@@ -214,6 +154,13 @@ public abstract class BaseBulkCommand<I, A, C extends BulkCommandContext<I>> imp
 	protected void setContext(C context) {
 		this._context = context;
 	}
+
+    public List<I> getSuccesses() {
+        return successes;
+    }
+    public void setSuccesses(List<I> successes) {
+        this.successes = successes;
+    }
     
     public Map<I, ApsCommandErrorCode> getErrors() {
         return errors;
@@ -221,16 +168,16 @@ public abstract class BaseBulkCommand<I, A, C extends BulkCommandContext<I>> imp
     public void setErrors(Map<I, ApsCommandErrorCode> errors) {
         this.errors = errors;
     }
-
-	private String _id;
+    
 	private A _applier;
-	private int _applySuccesses = 0;
-	private int applyErrors = 0;
+	//private AtomicInteger applySuccesses = new AtomicInteger(0);
+	//private AtomicInteger applyErrors = new AtomicInteger(0);
 	private Date endingTime;
 	private volatile ApsCommandStatus _status = ApsCommandStatus.NEW;
 	
 	private C _context;
     
-    private Map<I, ApsCommandErrorCode> errors = new HashMap<>();
+    private List<I> successes = new CopyOnWriteArrayList<>();
+    private Map<I, ApsCommandErrorCode> errors = new ConcurrentHashMap<>();
 
 }

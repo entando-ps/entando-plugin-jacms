@@ -23,12 +23,6 @@ import java.util.Date;
 public interface ApsCommand<C extends BulkCommandContext> {
 
 	/**
-	 * Returns the ID of the given command.
-	 * @return The ID of the given command.
-	 */
-	public String getId();
-
-	/**
 	 * Returns the conventional name of the given command.
 	 * @return The conventional name of the given command.
 	 */
@@ -41,20 +35,12 @@ public interface ApsCommand<C extends BulkCommandContext> {
 	public void init(C context);
 
 	/**
-	 * Apply the command.
-	 */
-	public void apply();
-
-	/**
-	 * Stop the command.
-	 */
-	public void stopCommand();
-	
-	/**
 	 * Returns the instant of the end of the command.
 	 * @return The instant of the end of the command.
 	 */
 	public Date getEndingTime();
+    
+    public void setEndingTime(Date date);
 
 	/**
 	 * Returns true if the Command is ended (whether it has been completed or stopped early), false otherwise.

@@ -28,153 +28,51 @@ import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.ApsComma
  *
  * @param <I> The type of items on which the command is applied.
  */
-public class DefaultBulkCommandReport<I> implements BulkCommandReport<I> {
+public class DefaultBulkCommandReport<I> {
     
-    private int applyTotal = 0;
-    private int total = 0;
-    private int applySuccesses = 0;
-    private int applyErrors = 0;
+    private Integer applyTotal;
+    private Integer total;
+    private Integer applySuccesses;
+    private Integer applyErrors;
     private Date endingTime;
     private List<I> successes = new ArrayList<>();
     private Map<I, ApsCommandErrorCode> errors = new HashedMap<>();
     
-    /*
-    @Override
-    public int getTotal() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int getApplyTotal() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int getApplySuccesses() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int getApplyErrors() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public List<I> getSuccesses() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Date getEndingTime() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    */
-    
-    
-    
-	/*
-	public DefaultBulkCommandReport(BaseBulkCommand<I, ?, ?> command) {
-		this._command = command;
-	}
-
-	@Override
-	public String getCommandId() {
-		return this._command.getId();
-	}
-
-	@Override
-	public int getTotal() {
-		return this._command.getTotal();
-	}
-
-	@Override
-	public int getApplyTotal() {
-		return this._command.getApplySuccesses() + this._command.getApplyErrors();
-	}
-
-	@Override
-	public int getApplySuccesses() {
-		return this._command.getApplySuccesses();
-	}
-
-	@Override
-	public int getApplyErrors() {
-		return this._command.getApplyErrors();
-	}
-
-	@Override
-	public List<I> getSuccesses() {
-		return this._command.getTracer().getSuccesses();
-	}
-    
-	@Override
-	public Map<I, ApsCommandWarningCode> getWarnings() {
-		return this._command.getTracer().getWarnings();
-	}
-
-	@Override
-	public Map<I, ApsCommandErrorCode> getErrors() {
-		return this._command.getTracer().getErrors();
-	}
-
-	@Override
-	public ApsCommandStatus getStatus() {
-		return this._command.getStatus();
-	}
-    
-	@Override
-	public Date getEndingTime() {
-		return this._command.getEndingTime();
-	}
-	
-	private BaseBulkCommand<I, ?, ?> _command;
-    */
-
-    @Override
-    public int getApplyTotal() {
+    public Integer getApplyTotal() {
         return applyTotal;
     }
-    public void setApplyTotal(int applyTotal) {
+    public void setApplyTotal(Integer applyTotal) {
         this.applyTotal = applyTotal;
     }
     
-    @Override
-    public int getTotal() {
+    public Integer getTotal() {
         return total;
     }
-
-    public void setTotal(int total) {
+    public void setTotal(Integer total) {
         this.total = total;
     }
 
-    @Override
-    public int getApplySuccesses() {
+    public Integer getApplySuccesses() {
         return applySuccesses;
     }
-
-    public void setApplySuccesses(int applySuccesses) {
+    public void setApplySuccesses(Integer applySuccesses) {
         this.applySuccesses = applySuccesses;
     }
 
-    @Override
-    public int getApplyErrors() {
+    public Integer getApplyErrors() {
         return applyErrors;
     }
-
-    public void setApplyErrors(int applyErrors) {
+    public void setApplyErrors(Integer applyErrors) {
         this.applyErrors = applyErrors;
     }
 
-    @Override
     public Date getEndingTime() {
         return endingTime;
     }
-
     public void setEndingTime(Date endingTime) {
         this.endingTime = endingTime;
     }
 
-    @Override
     public List<I> getSuccesses() {
         return successes;
     }
@@ -185,9 +83,13 @@ public class DefaultBulkCommandReport<I> implements BulkCommandReport<I> {
     public Map<I, ApsCommandErrorCode> getErrors() {
         return errors;
     }
-
     public void setErrors(Map<I, ApsCommandErrorCode> errors) {
         this.errors = errors;
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultBulkCommandReport{" + "applyTotal=" + applyTotal + ", total=" + total + ", applySuccesses=" + applySuccesses + ", applyErrors=" + applyErrors + ", endingTime=" + endingTime + ", successes=" + successes + ", errors=" + errors + '}';
     }
     
 }
