@@ -34,6 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.entando.entando.aps.system.services.widgettype.IWidgetTypeManager;
+import org.entando.entando.aps.system.services.widgettype.WidgetType;
 import org.entando.entando.ent.util.EntLogging.EntLogger;
 import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 
@@ -263,7 +265,15 @@ public class ContentModelAction extends BaseAction implements IContentModelActio
 
     /* Used by JSP page */
     public String getWidgetTitle(ContentModelReference reference, String langCode) {
-        return getWidget(reference).getType().getTitles().getProperty(langCode);
+        Widget widget = this.getWidget(reference);
+        if (null == widget) {
+            return null;
+        }
+        WidgetType type = this.getWidgetTypeManager().getWidgetType(widget.getTypeCode());
+        if (null == type) {
+            return null;
+        }
+        return type.getTitles().getProperty(langCode);
     }
 
     public Content getContentPrototype() {
@@ -375,6 +385,13 @@ public class ContentModelAction extends BaseAction implements IContentModelActio
         this._pageManager = _pageManager;
     }
 
+    protected IWidgetTypeManager getWidgetTypeManager() {
+        return widgetTypeManager;
+    }
+    public void setWidgetTypeManager(IWidgetTypeManager widgetTypeManager) {
+        this.widgetTypeManager = widgetTypeManager;
+    }
+
     private int _strutsAction;
     private Integer _modelId;
     private String _contentType;
@@ -392,5 +409,6 @@ public class ContentModelAction extends BaseAction implements IContentModelActio
     private IContentModelManager _contentModelManager;
     private IContentManager _contentManager;
     private IPageManager _pageManager;
+    private IWidgetTypeManager widgetTypeManager;
 
 }

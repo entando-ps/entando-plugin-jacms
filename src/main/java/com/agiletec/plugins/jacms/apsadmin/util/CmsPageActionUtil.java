@@ -47,15 +47,15 @@ public class CmsPageActionUtil {
 		return CmsPageUtil.isPageLinkableByContentOnline(page, content);
 	}
 	
-	/**
+	/*
 	 * Check whether the page can publish free content.
 	 * @param page The page to check.
 	 * @param viewerWidgetCode The code of the viewer widget (optional)
 	 * @return True if the page can publish free content, false else.
 	 * @deprecated Use {@link CmsPageUtil#isOnlineFreeViewerPage(IPage, String)} or {@link CmsPageUtil#isDraftFreeViewerPage(IPage, String)} instead.
 	 */
-	public static boolean isFreeViewerPage(IPage page, String viewerWidgetCode) {
-		return CmsPageUtil.isOnlineFreeViewerPage(page, viewerWidgetCode);
-	}
+	//public static boolean isFreeViewerPage(IPage page, String viewerWidgetCode) {
+	//	return CmsPageUtil.isOnlineFreeViewerPage(page, viewerWidgetCode);
+	//}
 	
 }

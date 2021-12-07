@@ -24,10 +24,13 @@ import com.agiletec.aps.system.common.entity.model.IApsEntity;
 import com.agiletec.aps.system.services.group.Group;
 import com.agiletec.aps.system.services.page.IPage;
 import com.agiletec.aps.system.services.page.IPageManager;
+import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
+import com.agiletec.aps.system.services.pagemodel.PageModel;
 import com.agiletec.apsadmin.system.entity.type.EntityTypeConfigAction;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
 import com.agiletec.plugins.jacms.aps.system.services.contentmodel.ContentModel;
 import com.agiletec.plugins.jacms.aps.system.services.contentmodel.IContentModelManager;
+import org.entando.entando.aps.system.services.widgettype.IWidgetTypeManager;
 
 /**
  * @author E.Santoboni
@@ -65,7 +68,8 @@ public class ContentTypeConfigAction extends EntityTypeConfigAction {
 		if (null == page) {
 			return;
 		}
-		if (page.getGroup().equals(Group.FREE_GROUP_NAME) && CmsPageUtil.isOnlineFreeViewerPage(page, null)) {
+        PageModel model = this.getPageModelManager().getPageModel(page.getMetadata().getModelCode());
+		if (page.getGroup().equals(Group.FREE_GROUP_NAME) && CmsPageUtil.isOnlineFreeViewerPage(page, model, null, this.getWidgetTypeManager())) {
 			pages.add(page);
 		}
 		String[] children = page.getChildrenCodes();
@@ -137,6 +141,20 @@ public class ContentTypeConfigAction extends EntityTypeConfigAction {
 	public void setContentModelManager(IContentModelManager contentModelManager) {
 		this._contentModelManager = contentModelManager;
 	}
+    
+    protected IWidgetTypeManager getWidgetTypeManager() {
+        return widgetTypeManager;
+    }
+    public void setWidgetTypeManager(IWidgetTypeManager widgetTypeManager) {
+        this.widgetTypeManager = widgetTypeManager;
+    }
+
+    protected IPageModelManager getPageModelManager() {
+        return pageModelManager;
+    }
+    public void setPageModelManager(IPageModelManager pageModelManager) {
+        this.pageModelManager = pageModelManager;
+    }
 
 	private String _viewPageCode;
 	private Integer _listModelId;
@@ -144,5 +162,7 @@ public class ContentTypeConfigAction extends EntityTypeConfigAction {
 
 	private IPageManager _pageManager;
 	private IContentModelManager _contentModelManager;
-
+	private IWidgetTypeManager widgetTypeManager;
+	private IPageModelManager pageModelManager;
+    
 }

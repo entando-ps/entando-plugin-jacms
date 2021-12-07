@@ -19,6 +19,8 @@
 	<bean id="jacmsContentTypeConfigAction" scope="prototype" 
 			class="com.agiletec.plugins.jacms.apsadmin.system.ContentTypeConfigAction" parent="abstractBaseAction">
 		<property name="pageManager" ref="PageManager" />
+		<property name="pageModelManager" ref="PageModelManager" />
+		<property name="widgetTypeManager" ref="WidgetTypeManager" />
 		<property name="contentModelManager" ref="jacmsContentModelManager" />
 	</bean>
 	

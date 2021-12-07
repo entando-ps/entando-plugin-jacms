@@ -18,6 +18,7 @@ import org.entando.entando.ent.exception.EntException;
 import com.agiletec.aps.system.services.page.IPage;
 import com.agiletec.aps.system.services.page.IPageManager;
 import com.agiletec.aps.system.services.page.Widget;
+import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
 import com.agiletec.aps.system.services.pagemodel.PageModel;
 import com.agiletec.aps.util.ApsProperties;
 import com.agiletec.plugins.jacms.aps.system.services.contentpagemapper.ContentPageMapper;
@@ -37,11 +38,11 @@ public class ContentMapperCacheWrapper extends AbstractCacheWrapper implements I
     }
 
 	@Override
-	public void initCache(IPageManager pageManager) throws EntException {
+	public void initCache(IPageManager pageManager, IPageModelManager pageModelManager) throws EntException {
 		try {
 			ContentPageMapper contentPageMapper = new ContentPageMapper();
 			IPage root = pageManager.getOnlineRoot();
-			this.searchPublishedDataObjects(contentPageMapper, root, pageManager);
+			this.searchPublishedDataObjects(contentPageMapper, root, pageManager, pageModelManager);
 			this.getCache().put(CONTENT_MAPPER_CACHE_KEY, contentPageMapper);
 		} catch (Throwable t) {
 			_logger.error("Error loading data object mapper", t);
@@ -49,8 +50,8 @@ public class ContentMapperCacheWrapper extends AbstractCacheWrapper implements I
 		}
 	}
 
-	private void searchPublishedDataObjects(ContentPageMapper contentPageMapper, IPage page, IPageManager pageManager) {
-		PageModel pageModel = page.getModel();
+	private void searchPublishedDataObjects(ContentPageMapper contentPageMapper, IPage page, IPageManager pageManager, IPageModelManager pageModelManager) {
+		PageModel pageModel = (null != page) ? pageModelManager.getPageModel(page.getModelCode()) : null;
 		if (pageModel != null) {
 			int mainFrame = pageModel.getMainFrame();
 			Widget[] widgets = page.getWidgets();
@@ -67,7 +68,7 @@ public class ContentMapperCacheWrapper extends AbstractCacheWrapper implements I
 			for (String childCode : childCodes) {
 				IPage child = pageManager.getOnlinePage(childCode);
 				if (null != child) {
-					this.searchPublishedDataObjects(contentPageMapper, child, pageManager);
+					this.searchPublishedDataObjects(contentPageMapper, child, pageManager, pageModelManager);
 				}
 			}
 		}

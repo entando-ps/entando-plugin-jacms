@@ -15,6 +15,7 @@ package com.agiletec.plugins.jacms.aps.system.services.contentpagemapper.cache;
 
 import org.entando.entando.ent.exception.EntException;
 import com.agiletec.aps.system.services.page.IPageManager;
+import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
 
 /**
  * @author E.Santoboni
@@ -24,7 +25,7 @@ public interface IContentMapperCacheWrapper {
 	public static final String CONTENT_MAPPER_CACHE_NAME = "Entando_ContentPageMapperManager";
 	public static final String CONTENT_MAPPER_CACHE_KEY = "ContentPageMapper_mapper";
 
-	public void initCache(IPageManager pageManager) throws EntException;
+	public void initCache(IPageManager pageManager, IPageModelManager pageModelManager) throws EntException;
 
 	public String getPageCode(String contentId);
 

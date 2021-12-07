@@ -25,8 +25,11 @@ import com.agiletec.aps.system.RequestContext;
 import com.agiletec.aps.system.SystemConstants;
 import com.agiletec.aps.system.services.page.IPage;
 import com.agiletec.aps.system.services.page.Widget;
+import com.agiletec.aps.util.ApsWebApplicationUtils;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
 import com.agiletec.plugins.jacms.apsadmin.content.ContentActionConstants;
+import org.entando.entando.aps.system.services.widgettype.IWidgetTypeManager;
+import org.entando.entando.aps.system.services.widgettype.WidgetType;
 
 /**
  * @author E.Santoboni
@@ -54,9 +57,11 @@ public class PreviewWidgetExecutorAspect extends WidgetExecutorService {
 		try {
 			IPage currentPage = (IPage) reqCtx.getExtraParam(SystemConstants.EXTRAPAR_CURRENT_PAGE);
 			Widget[] widgets = currentPage.getWidgets();
+            IWidgetTypeManager widgetTypeManager = (IWidgetTypeManager) ApsWebApplicationUtils.getBean(SystemConstants.WIDGET_TYPE_MANAGER, reqCtx.getRequest());
 			for (int frame = 0; frame < widgets.length; frame++) {
 				Widget widget = widgets[frame];
-				if (widget != null && "viewerConfig".equals(widget.getType().getAction())) {
+                WidgetType type = (null != widget) ? widgetTypeManager.getWidgetType(widget.getTypeCode()) : null;
+				if (widget != null && "viewerConfig".equals(type.getAction())) {
 					if ((currentPage.getCode().equals(contentOnSession.getViewPage()) && (widget.getConfig() == null || widget.getConfig()
 							.size() == 0)) || (widget.getConfig() != null && widget.getConfig().get("contentId") != null && widget
 									.getConfig().get("contentId").equals(contentOnSession.getId()))) {
