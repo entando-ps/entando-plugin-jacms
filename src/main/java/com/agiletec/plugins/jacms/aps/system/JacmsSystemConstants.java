@@ -89,6 +89,13 @@ public class JacmsSystemConstants {
     public static final String CONTENT_CACHE_PREFIX = "jacms_publicContent_";
 
     /**
+     * Prefix to the key of the object where are stored the Content
+     * Authorization info. That name must be completed with the ID of the public
+     * content.
+     */
+    public static final String CONTENT_AUTH_INFO_CACHE_PREFIX = "jacms_ContentAuthInfo_";
+
+    /**
      * Prefix to the name of the group where are stored the rendered contents by
      * content id. That name must be completed with the ID of the content.
      */
