@@ -108,8 +108,6 @@ public class ContentAuthorizationHelper implements IContentAuthorizationHelper {
         return this.isAuth(user, content);
     }
     
-    public static final String CONTENT_AUTH_INFO_CACHE_PREFIX = "jacms_ContentAuthInfo_";
-
     @Override
     @Cacheable(value = ICacheInfoManager.DEFAULT_CACHE_NAME,
             key = "'jacms_ContentAuthInfo_'.concat(#contentId)")
