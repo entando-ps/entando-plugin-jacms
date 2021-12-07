@@ -107,10 +107,12 @@ public class ContentAuthorizationHelper implements IContentAuthorizationHelper {
         Content content = this.getContentManager().loadContent(contentId, publicVersion);
         return this.isAuth(user, content);
     }
+    
+    public static final String CONTENT_AUTH_INFO_CACHE_PREFIX = "jacms_ContentAuthInfo_";
 
     @Override
     @Cacheable(value = ICacheInfoManager.DEFAULT_CACHE_NAME,
-            key = "T(com.agiletec.plugins.jacms.aps.system.JacmsSystemConstants).CONTENT_AUTH_INFO_CACHE_PREFIX.concat(#contentId)")
+            key = "'jacms_ContentAuthInfo_'.concat(#contentId)")
     @CacheableInfo(groups = "T(com.agiletec.plugins.jacms.aps.system.services.cache.CmsCacheWrapperManager).getContentCacheGroupsCsv(#contentId)")
     public PublicContentAuthorizationInfo getAuthorizationInfo(String contentId) {
         PublicContentAuthorizationInfo authInfo = null;
@@ -129,7 +131,7 @@ public class ContentAuthorizationHelper implements IContentAuthorizationHelper {
 
     @Override
     @Cacheable(value = ICacheInfoManager.DEFAULT_CACHE_NAME, condition = "#cacheable",
-            key = "T(com.agiletec.plugins.jacms.aps.system.JacmsSystemConstants).CONTENT_AUTH_INFO_CACHE_PREFIX.concat(#contentId)")
+            key = "'jacms_ContentAuthInfo_'.concat(#contentId)")
     @CacheableInfo(groups = "T(com.agiletec.plugins.jacms.aps.system.services.cache.CmsCacheWrapperManager).getContentCacheGroupsCsv(#contentId)")
     public PublicContentAuthorizationInfo getAuthorizationInfo(String contentId, boolean cacheable) {
         PublicContentAuthorizationInfo authInfo = null;

@@ -248,7 +248,7 @@ public class ContentModelManager extends AbstractService implements IContentMode
 
                 ContentModelReference reference = null;
 
-                switch (widget.getType().getCode()) {
+                switch (widget.getTypeCode()) {
                     case "content_viewer":
                     case "jpseo_content_viewer":
                         reference = getSingleContentWidgetReference(modelId, widget, includeDefaultTemplateReferences);

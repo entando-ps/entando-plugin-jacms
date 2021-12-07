@@ -29,6 +29,7 @@ import com.agiletec.aps.system.services.page.Page;
 import com.agiletec.aps.system.services.page.PageMetadata;
 import com.agiletec.aps.system.services.page.PageTestUtil;
 import com.agiletec.aps.system.services.page.Widget;
+import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
 import com.agiletec.aps.system.services.pagemodel.PageModel;
 import com.agiletec.aps.util.ApsProperties;
 import com.agiletec.apsadmin.ApsAdminBaseTestCase;
@@ -39,7 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.entando.entando.aps.system.services.widgettype.IWidgetTypeManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,7 +49,7 @@ import org.junit.jupiter.api.Test;
 class TestPageAction extends ApsAdminBaseTestCase {
 
     private IPageManager pageManager = null;
-    private IWidgetTypeManager widgetTypeManager;
+    private IPageModelManager pageModelManager;
 
     @Test
     void testSavePage() throws Throwable {
@@ -78,7 +78,7 @@ class TestPageAction extends ApsAdminBaseTestCase {
         this.addParameter("strutsAction", String.valueOf(ApsAdminSystemConstants.EDIT));
         this.addParameter("langit", "");
         this.addParameter("langen", metadata.getTitle("en"));
-        this.addParameter("model", metadata.getModel().getCode());
+        this.addParameter("model", metadata.getModelCode());
         this.addParameter("group", mainGroup);
         this.addParameter("pageCode", page.getCode());
         Collection<String> extraGroups = metadata.getExtraGroups();
@@ -144,15 +144,15 @@ class TestPageAction extends ApsAdminBaseTestCase {
         String pageCode = "page_test_2";
         assertNull(this.pageManager.getDraftPage(pageCode));
         IPage parentPage = this.pageManager.getDraftPage("service");
-        PageModel pageModel = parentPage.getMetadata().getModel();
+        PageModel pageModel = this.pageModelManager.getPageModel(parentPage.getMetadata().getModelCode());
         PageMetadata metadata = PageTestUtil.createPageMetadata(pageModel,
                 true, "Test Page", null, null, false, null, null);
         ApsProperties config = PageTestUtil.createProperties("temp", "tempValue", "contentId", "RAH101");
-        Widget widgetToAdd = PageTestUtil.createWidget("content_viewer", config, this.widgetTypeManager);
+        Widget widgetToAdd = PageTestUtil.createWidget("content_viewer", config);
 
         Widget[] widgets = new Widget[pageModel.getFrames().length];//
         widgets[0] = widgetToAdd;
-        Page pageToAdd = PageTestUtil.createPage(pageCode, parentPage.getCode(), "customers", metadata, widgets);
+        Page pageToAdd = PageTestUtil.createPage(pageCode, parentPage.getCode(), "customers", pageModel, metadata, widgets);
         try {
             pageManager.addPage(pageToAdd);
 
@@ -162,7 +162,7 @@ class TestPageAction extends ApsAdminBaseTestCase {
             params.put("strutsAction", String.valueOf(ApsAdminSystemConstants.EDIT));
             params.put("parentPageCode", addedPage.getParentCode());
             params.put("langit", "Pagina Test 2");
-            params.put("model", addedPage.getMetadata().getModel().getCode());
+            params.put("model", addedPage.getMetadata().getModelCode());
             params.put("langen", "Test Page 2");
             params.put("group", "coach");
             params.put("pageCode", pageCode);
@@ -212,7 +212,7 @@ class TestPageAction extends ApsAdminBaseTestCase {
     private void init() throws Exception {
         try {
             this.pageManager = (IPageManager) this.getService(SystemConstants.PAGE_MANAGER);
-            this.widgetTypeManager = (IWidgetTypeManager) this.getService(SystemConstants.WIDGET_TYPE_MANAGER);
+            this.pageModelManager = (IPageModelManager) this.getService(SystemConstants.PAGE_MODEL_MANAGER);
         } catch (Throwable t) {
             throw new Exception(t);
         }

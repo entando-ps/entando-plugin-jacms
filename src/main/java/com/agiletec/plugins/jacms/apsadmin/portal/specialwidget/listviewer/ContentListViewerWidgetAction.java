@@ -148,7 +148,7 @@ public class ContentListViewerWidgetAction extends SimpleWidgetConfigAction {
 	}
 
 	protected void validateFilters() {
-		WidgetType type = this.getWidget().getType();
+		WidgetType type = this.getWidgetTypeManager().getWidgetType(this.getWidget().getTypeCode());
 		ApsProperties config = this.getWidget().getConfig();
 		if (null != config && null != type && type.hasParameter("categories") && type.hasParameter("maxElemForItem") && type.hasParameter("maxElements")
 				&& StringUtils.isNotEmpty(config.getProperty("contentType")) && StringUtils.isEmpty(config.getProperty("categories")) && StringUtils.isEmpty(config.getProperty("maxElemForItem")) && StringUtils.isEmpty(config.getProperty("maxElements"))) {

@@ -35,7 +35,10 @@ import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Properties;
 
-import static org.entando.entando.aps.util.PageUtils.isOnlineFreeViewerPage;
+import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
+import com.agiletec.aps.system.services.pagemodel.PageModel;
+import org.entando.entando.aps.system.services.widgettype.IWidgetTypeManager;
+import org.entando.entando.aps.util.PageUtils;
 
 /**
  * @author E.Santoboni
@@ -44,6 +47,12 @@ public class ApiContentTypeInterface extends ApiEntityTypeInterface {
 
     @Autowired
     private PageManager pageManager;
+    
+    private IContentManager _contentManager;
+    private IContentModelManager _contentModelManager;
+    
+    private IPageModelManager pageModelManager;
+    private IWidgetTypeManager widgetTypeManager;
 
     public JAXBContentType getContentType(Properties properties) throws ApiException, Throwable {
         return (JAXBContentType) super.getEntityType(properties);
@@ -116,29 +125,26 @@ public class ApiContentTypeInterface extends ApiEntityTypeInterface {
         }
 	}
 
-    private boolean checkViewPage(String viewPage, StringApiResponse response) {
-        if (null != viewPage) {
-            IPage page =  this.pageManager.getOnlinePage(viewPage);
-            if (null == page) {
+    private boolean checkViewPage(String viewPageCode, StringApiResponse response) {
+        if (null != viewPageCode) {
+            IPage viewPage =  this.getPageManager().getOnlinePage(viewPageCode);
+            if (null == viewPage) {
                 ApiError error = new ApiError(IApiErrorCodes.API_VALIDATION_ERROR,
-                        "View Page with id '" + viewPage + "' does not exist", Response.Status.ACCEPTED);
+                        "View Page with id '" + viewPageCode + "' does not exist", Response.Status.ACCEPTED);
                 response.addError(error);
                 return false;
             }
-
-            final Frame[] configuration = pageManager.getDraftPage(viewPage).getModel().getConfiguration();
+            PageModel pageModel = this.getPageModelManager().getPageModel(viewPage.getModelCode());
+            final Frame[] configuration = pageModel.getConfiguration();
             final boolean mainFramePresent = Arrays.stream(configuration).anyMatch(Frame::isMainFrame);
-
             if (!mainFramePresent) {
                 ApiError error = new ApiError(IApiErrorCodes.API_VALIDATION_ERROR,
-                        "Main frame for Page with id '" + viewPage + "' not present", Response.Status.ACCEPTED);
+                        "Main frame for Page with id '" + viewPage.getCode() + "' not present", Response.Status.ACCEPTED);
                 response.addError(error);
                 return false;
             }
-
-            return isOnlineFreeViewerPage(page, null);
+            return PageUtils.isOnlineFreeViewerPage(viewPage, pageModel, null, this.getWidgetTypeManager());
         }
-
         return true;
     }
 
@@ -189,6 +195,13 @@ public class ApiContentTypeInterface extends ApiEntityTypeInterface {
         this._contentManager = contentManager;
     }
 
+    protected PageManager getPageManager() {
+        return pageManager;
+    }
+    public void setPageManager(PageManager pageManager) {
+        this.pageManager = pageManager;
+    }
+
     protected IContentModelManager getContentModelManager() {
         return _contentModelManager;
     }
@@ -196,7 +209,18 @@ public class ApiContentTypeInterface extends ApiEntityTypeInterface {
         this._contentModelManager = contentModelManager;
     }
 
-    private IContentManager _contentManager;
-    private IContentModelManager _contentModelManager;
+    protected IPageModelManager getPageModelManager() {
+        return pageModelManager;
+    }
+    public void setPageModelManager(IPageModelManager pageModelManager) {
+        this.pageModelManager = pageModelManager;
+    }
+
+    protected IWidgetTypeManager getWidgetTypeManager() {
+        return widgetTypeManager;
+    }
+    public void setWidgetTypeManager(IWidgetTypeManager widgetTypeManager) {
+        this.widgetTypeManager = widgetTypeManager;
+    }
 
 }

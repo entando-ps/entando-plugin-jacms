@@ -839,7 +839,7 @@ class PageConfigurationControllerIntegrationTest extends AbstractControllerInteg
                 String path = String.format("$.payload.widgets[%d]", i);
 
                 if (null != defaultWidgetConfiguration[i]) {
-                    WidgetConfigurationDto exp = new WidgetConfigurationDto(defaultWidgetConfiguration[i].getType().getCode(), defaultWidgetConfiguration[i].getConfig());
+                    WidgetConfigurationDto exp = new WidgetConfigurationDto(defaultWidgetConfiguration[i].getTypeCode(), defaultWidgetConfiguration[i].getConfig());
                     Map actual = mapper.convertValue(exp, Map.class); //jsonPath workaround
                     result.andExpect(jsonPath(path, is(actual)));
                 } else {
@@ -855,14 +855,16 @@ class PageConfigurationControllerIntegrationTest extends AbstractControllerInteg
     protected Page createPage(String pageCode, PageModel pageModel) {
         IPage parentPage = pageManager.getDraftPage("service");
         if (null == pageModel) {
-            pageModel = parentPage.getMetadata().getModel();
+            pageModel = this.pageModelManager.getPageModel(parentPage.getMetadata().getModelCode());
         }
         PageMetadata metadata = PageTestUtil.createPageMetadata(pageModel, true, pageCode + "_title", null, null, false, null, null);
-        ApsProperties config = PageTestUtil.createProperties("modelId", "default", "contentId", "EVN24");
-        Widget widgetToAdd = PageTestUtil.createWidget("content_viewer", config, this.widgetTypeManager);
+        ApsProperties config = new ApsProperties();//PageTestUtil.createProperties("modelId", "default", "contentId", "EVN24");
+        config.put("contentId", "EVN24");
+        config.put("modelId", "default");
+        Widget widgetToAdd = PageTestUtil.createWidget("content_viewer", config);
         Widget[] widgets = new Widget[pageModel.getFrames().length];
         widgets[0] = widgetToAdd;
-        Page pageToAdd = PageTestUtil.createPage(pageCode, parentPage.getCode(), "free", metadata, widgets);
+        Page pageToAdd = PageTestUtil.createPage(pageCode, parentPage.getCode(), "free", pageModel, metadata, widgets);
         return pageToAdd;
     }
 
