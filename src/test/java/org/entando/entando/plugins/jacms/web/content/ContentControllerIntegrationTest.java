@@ -35,7 +35,6 @@ import com.agiletec.plugins.jacms.aps.system.services.searchengine.ICmsSearchEng
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import org.apache.commons.lang3.StringUtils;
-import org.entando.entando.aps.system.services.widgettype.IWidgetTypeManager;
 import org.entando.entando.plugins.jacms.aps.system.services.content.IContentService;
 import org.entando.entando.plugins.jacms.web.content.validator.BatchContentStatusRequest;
 import org.entando.entando.plugins.jacms.web.content.validator.ContentStatusRequest;
@@ -66,6 +65,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.agiletec.aps.system.SystemConstants;
+import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
+
 class ContentControllerIntegrationTest extends AbstractControllerIntegrationTest {
 
     @Autowired
@@ -78,7 +80,7 @@ class ContentControllerIntegrationTest extends AbstractControllerIntegrationTest
     private IPageManager pageManager;
 
     @Autowired
-    private IWidgetTypeManager widgetTypeManager;
+    private IPageModelManager pageModelManager;
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -4345,17 +4347,18 @@ class ContentControllerIntegrationTest extends AbstractControllerIntegrationTest
 
     protected Page createPage(String pageCode, boolean addWidget, String groupName) {
         IPage parentPage = pageManager.getDraftPage("service");
-        PageModel pageModel = parentPage.getMetadata().getModel();
+        PageModel pageModel = this.pageModelManager.getPageModel(parentPage.getMetadata().getModelCode());
         PageMetadata metadata = PageTestUtil
                 .createPageMetadata(pageModel, true, pageCode + "_title", null, null, false, null, null);
-        ApsProperties config = PageTestUtil.createProperties("temp", "tempValue", "contentId", "ART11");
+        ApsProperties config = new ApsProperties();//PageTestUtil.createProperties("temp", "tempValue", "contentId", "ART11");
+        config.put("contentId", "ART11");
         Widget[] widgets = null;
         if (addWidget) {
             widgets = new Widget[pageModel.getFrames().length];
-            Widget widgetToAdd = PageTestUtil.createWidget("content_viewer", config, this.widgetTypeManager);
+            Widget widgetToAdd = PageTestUtil.createWidget("content_viewer", config);
             widgets[0] = widgetToAdd;
         }
-        Page pageToAdd = PageTestUtil.createPage(pageCode, parentPage.getCode(), groupName, metadata, widgets);
+        Page pageToAdd = PageTestUtil.createPage(pageCode, parentPage.getCode(), groupName, pageModel, metadata, widgets);
         return pageToAdd;
     }
 }

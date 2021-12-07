@@ -22,6 +22,7 @@ import org.entando.entando.ent.exception.EntException;
 import com.agiletec.aps.system.services.page.IPageManager;
 import com.agiletec.aps.system.services.page.events.PageChangedEvent;
 import com.agiletec.aps.system.services.page.events.PageChangedObserver;
+import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
 import com.agiletec.plugins.jacms.aps.system.services.contentpagemapper.cache.IContentMapperCacheWrapper;
 
 /**
@@ -36,11 +37,12 @@ public class ContentPageMapperManager extends AbstractService implements IConten
 	private static final EntLogger _logger = EntLogFactory.getSanitizedLogger(ContentPageMapperManager.class);
 
 	private IPageManager pageManager;
+	private IPageModelManager pageModelManager;
 	private IContentMapperCacheWrapper cacheWrapper;
 	
 	@Override
 	public void init() throws Exception {
-		this.getCacheWrapper().initCache(this.getPageManager());
+		this.getCacheWrapper().initCache(this.getPageManager(), this.getPageModelManager());
 		_logger.debug("{} ready.", this.getClass().getName());
 	}
     
@@ -57,7 +59,7 @@ public class ContentPageMapperManager extends AbstractService implements IConten
 	 */
 	@Override
 	public void reloadContentPageMapper() throws EntException {
-		this.getCacheWrapper().initCache(this.getPageManager());
+		this.getCacheWrapper().initCache(this.getPageManager(), this.getPageModelManager());
 	}
 
 	@Override
@@ -79,15 +81,20 @@ public class ContentPageMapperManager extends AbstractService implements IConten
 	protected IPageManager getPageManager() {
 		return pageManager;
 	}
-
 	public void setPageManager(IPageManager pageManager) {
 		this.pageManager = pageManager;
 	}
 
+    protected IPageModelManager getPageModelManager() {
+        return pageModelManager;
+    }
+    public void setPageModelManager(IPageModelManager pageModelManager) {
+        this.pageModelManager = pageModelManager;
+    }
+
 	protected IContentMapperCacheWrapper getCacheWrapper() {
 		return cacheWrapper;
 	}
-	
 	public void setCacheWrapper(IContentMapperCacheWrapper cacheWrapper) {
 		this.cacheWrapper = cacheWrapper;
 	}

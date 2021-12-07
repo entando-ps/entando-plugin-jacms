@@ -54,7 +54,7 @@ class TestContentListViewerWidgetAction extends ApsAdminBaseTestCase {
 		ContentListViewerWidgetAction action = (ContentListViewerWidgetAction) this.getAction();
 		Widget widget = action.getWidget();
 		assertNotNull(widget);
-		assertEquals("content_viewer_list", widget.getType().getCode());
+		assertEquals("content_viewer_list", widget.getTypeCode());
 		ApsProperties props = widget.getConfig();
 		assertEquals(4, props.size());
 		assertEquals("NEW", props.getProperty("contentType"));
@@ -99,7 +99,7 @@ class TestContentListViewerWidgetAction extends ApsAdminBaseTestCase {
 		ContentListViewerWidgetAction action = (ContentListViewerWidgetAction) this.getAction();
 		Widget widget = action.getWidget();
 		assertNotNull(widget);
-		assertEquals("content_viewer_list", widget.getType().getCode());
+		assertEquals("content_viewer_list", widget.getTypeCode());
 		ApsProperties props = widget.getConfig();
 		assertEquals(1, props.size());
 		assertEquals("ART", props.getProperty("contentType"));
@@ -219,7 +219,7 @@ class TestContentListViewerWidgetAction extends ApsAdminBaseTestCase {
 		ContentListViewerWidgetAction action = (ContentListViewerWidgetAction) this.getAction();
 		Widget widget = action.getWidget();
 		assertNotNull(widget);
-		assertEquals("content_viewer_list", widget.getType().getCode());
+		assertEquals("content_viewer_list", widget.getTypeCode());
 		ApsProperties props = widget.getConfig();
 		assertEquals(2, props.size());
 		assertEquals("NEW", props.getProperty("contentType"));

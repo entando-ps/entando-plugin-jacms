@@ -20,6 +20,7 @@ import com.agiletec.aps.system.services.page.IPageManager;
 import com.agiletec.aps.system.services.page.Page;
 import com.agiletec.aps.system.services.page.Widget;
 import com.agiletec.aps.system.services.pagemodel.Frame;
+import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
 import com.agiletec.aps.system.services.pagemodel.PageModel;
 import com.agiletec.aps.util.ApsProperties;
 import com.agiletec.plugins.jacms.aps.system.services.contentpagemapper.ContentPageMapper;
@@ -52,6 +53,9 @@ class ContentMapperCacheWrapperTest {
 	private IPageManager pageManager;
 
 	@Mock
+	private IPageModelManager pageModelManager;
+
+	@Mock
 	private Cache cache;
 
 	@Mock
@@ -68,7 +72,7 @@ class ContentMapperCacheWrapperTest {
 	@Test
 	void testInitCacheWithError() throws Throwable {
         Assertions.assertThrows(EntException.class, () -> {
-            this.cacheWrapper.initCache(this.pageManager);
+            this.cacheWrapper.initCache(this.pageManager, this.pageModelManager);
         });
 	}
 
@@ -76,7 +80,7 @@ class ContentMapperCacheWrapperTest {
 	void testInitCache() throws Throwable {
 		Mockito.when(pageManager.getOnlineRoot()).thenReturn(this.createMockPage());
 		Mockito.when(cacheManager.getCache(IContentMapperCacheWrapper.CONTENT_MAPPER_CACHE_NAME)).thenReturn(this.cache);
-		cacheWrapper.initCache(this.pageManager);
+		cacheWrapper.initCache(this.pageManager, this.pageModelManager);
         Assertions.assertNotNull(this.cacheWrapper);
 	}
 
@@ -96,7 +100,7 @@ class ContentMapperCacheWrapperTest {
 	private IPage createMockPage() {
 		Page root = new Page();
 		root.setCode("root_code");
-		root.setModel(this.createMockPageModel());
+		root.setModelCode(this.createMockPageModel().getCode());
 		root.setGroup(Group.FREE_GROUP_NAME);
 		Widget[] widgets = new Widget[]{this.createMockWidget()};
 		root.setWidgets(widgets);
@@ -127,7 +131,7 @@ class ContentMapperCacheWrapperTest {
 		param2.setName("testParam");
 		List<WidgetTypeParameter> params = Arrays.asList(new WidgetTypeParameter[]{param1, param2});
 		type.setTypeParameters(params);
-		widget.setType(type);
+		widget.setTypeCode(type.getCode());
 		ApsProperties props = new ApsProperties();
 		props.put("contentId", "ART1");
 		props.put("testParam", "test");

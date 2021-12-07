@@ -106,7 +106,7 @@ class TestPageActionReferences extends ApsAdminBaseTestCase {
         page.setTitle("en", code);
         page.setGroup(Group.FREE_GROUP_NAME);
         PageModel pageModel = this.pageModelManager.getPageModel("internal");
-        page.setModel(pageModel);
+        page.setModelCode(pageModel.getCode());
         page.setCode(code);
         page.setWidgets(new Widget[pageModel.getFrames().length]);
         return page;
