@@ -13,6 +13,16 @@
  */
 package com.agiletec.plugins.jacms.aps.system.services.content.widget;
 
+import static com.agiletec.plugins.jacms.aps.system.services.content.helper.BaseContentListHelper.getAllowedGroupCodes;
+import static com.agiletec.plugins.jacms.aps.system.services.content.helper.BaseContentListHelper.splitValues;
+import static com.agiletec.plugins.jacms.aps.system.services.content.helper.IContentListHelper.CATEGORIES_SEPARATOR;
+import static com.agiletec.plugins.jacms.aps.system.services.content.widget.IContentListWidgetHelper.SHOWLET_PARAM_CATEGORY;
+import static com.agiletec.plugins.jacms.aps.system.services.content.widget.IContentListWidgetHelper.WIDGET_PARAM_CATEGORIES;
+import static com.agiletec.plugins.jacms.aps.system.services.content.widget.IContentListWidgetHelper.WIDGET_PARAM_CONTENT_TYPE;
+import static com.agiletec.plugins.jacms.aps.system.services.content.widget.IContentListWidgetHelper.WIDGET_PARAM_FILTERS;
+import static com.agiletec.plugins.jacms.aps.system.services.content.widget.IContentListWidgetHelper.WIDGET_PARAM_OR_CLAUSE_CATEGORY_FILTER;
+import static com.agiletec.plugins.jacms.aps.system.services.content.widget.IContentListWidgetHelper.WIDGET_PARAM_USER_FILTERS;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -38,13 +48,15 @@ import com.agiletec.aps.system.services.page.IPage;
 import com.agiletec.aps.system.services.page.Widget;
 import com.agiletec.aps.system.services.user.UserDetails;
 import com.agiletec.aps.util.ApsProperties;
+import com.agiletec.plugins.jacms.aps.system.services.cache.CmsCacheWrapperManager;
 import com.agiletec.plugins.jacms.aps.system.services.content.helper.BaseContentListHelper;
 import com.agiletec.plugins.jacms.aps.system.services.content.widget.util.FilterUtils;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.cache.annotation.Cacheable;
+import org.entando.entando.aps.system.services.cache.CacheInfoManager;
 
 /**
  * Classe helper per la widget di erogazione contenuti in lista.
@@ -84,13 +96,17 @@ public class ContentListHelper extends BaseContentListHelper implements IContent
     }
 
     @Override
-    @Cacheable(value = ICacheInfoManager.DEFAULT_CACHE_NAME,
-            key = "T(com.agiletec.plugins.jacms.aps.system.services.content.widget.ContentListHelper).buildCacheKey(#bean, #reqCtx)",
-            condition = "#bean.cacheable && !T(com.agiletec.plugins.jacms.aps.system.services.content.widget.ContentListHelper).isUserFilterExecuted(#bean)")
-    @CacheableInfo(groups = "T(com.agiletec.plugins.jacms.aps.system.services.cache.CmsCacheWrapperManager).getContentListCacheGroupsCsv(#bean, #reqCtx)", expiresInMinute = 30)
     public List<String> getContentsId(IContentListTagBean bean, RequestContext reqCtx) throws Throwable {
-        this.releaseCache(bean, reqCtx);
+        String key = ContentListHelper.buildCacheKey(bean, reqCtx);
+        this.releaseCache(key, reqCtx);
+        boolean cacheable = bean.isCacheable() && !isUserFilterExecuted(bean);
         List<String> contentsId = null;
+        if (cacheable) {
+            contentsId = (List<String>) ((CacheInfoManager) this.getCacheInfoManager()).getFromCache(ICacheInfoManager.DEFAULT_CACHE_NAME, key);
+            if (null != contentsId) {
+                return contentsId;
+            }
+        }
         try {
             contentsId = this.extractContentsId(bean, reqCtx);
             contentsId = this.executeFullTextSearch(bean, contentsId, reqCtx);
@@ -98,11 +114,17 @@ public class ContentListHelper extends BaseContentListHelper implements IContent
             _logger.error("Error extracting contents id", t);
             throw new EntException("Error extracting contents id", t);
         }
+        if (cacheable) {
+            String[] groups = CmsCacheWrapperManager.getContentListCacheGroupsCsv(bean, reqCtx).split(",");
+            ((CacheInfoManager) this.getCacheInfoManager()).putInCache(ICacheInfoManager.DEFAULT_CACHE_NAME, key, contentsId, groups);
+            Calendar expiration = Calendar.getInstance();
+            expiration.add(Calendar.MINUTE, 30);
+            ((CacheInfoManager) this.getCacheInfoManager()).setExpirationTime(ICacheInfoManager.DEFAULT_CACHE_NAME, key, expiration.getTime());
+        }
         return contentsId;
     }
 
-    private void releaseCache(IContentListTagBean bean, RequestContext reqCtx) {
-        String key = ContentListHelper.buildCacheKey(bean, reqCtx);
+    private void releaseCache(String key, RequestContext reqCtx) {
         boolean isExpired = this.getCacheInfoManager().isExpired(ICacheInfoManager.DEFAULT_CACHE_NAME, key);
         if (isExpired) {
             this.getCacheInfoManager().flushEntry(ICacheInfoManager.DEFAULT_CACHE_NAME, key);
