@@ -74,7 +74,7 @@ public class BaseContentDispenser extends AbstractService implements IContentDis
         if (null == authInfo) {
             return null;
         }
-        return this.getRenderizationInfo(authInfo, contentId, modelId, langCode, reqCtx);
+        return this.getRenderizationInfo(authInfo, contentId, modelId, langCode, reqCtx, true);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class BaseContentDispenser extends AbstractService implements IContentDis
         if (null == authInfo) {
             return null;
         }
-        return this.getRenderizationInfo(authInfo, contentId, modelId, langCode, reqCtx);
+        return this.getRenderizationInfo(authInfo, contentId, modelId, langCode, reqCtx, cacheable);
     }
 
     @Override
@@ -93,19 +93,20 @@ public class BaseContentDispenser extends AbstractService implements IContentDis
         if (null == authInfo) {
             return null;
         }
-        return this.getRenderizationInfo(authInfo, contentId, modelId, langCode, currentUser, null);
+        return this.getRenderizationInfo(authInfo, contentId, modelId, langCode, currentUser, null, cacheable);
     }
     
     protected ContentRenderizationInfo getRenderizationInfo(PublicContentAuthorizationInfo authInfo,
-            String contentId, long modelId, String langCode, RequestContext reqCtx) {
+            String contentId, long modelId, String langCode, RequestContext reqCtx, boolean cacheable) {
         UserDetails currentUser = (null != reqCtx) ? (UserDetails) reqCtx.getRequest().getSession().getAttribute(SystemConstants.SESSIONPARAM_CURRENT_USER) : null;
-        return this.getRenderizationInfo(authInfo, contentId, modelId, langCode, currentUser, reqCtx);
+        return this.getRenderizationInfo(authInfo, contentId, modelId, langCode, currentUser, reqCtx, cacheable);
     }
 
     protected ContentRenderizationInfo getRenderizationInfo(PublicContentAuthorizationInfo authInfo,
-            String contentId, long modelId, String langCode, UserDetails user, RequestContext reqCtx) {
+            String contentId, long modelId, String langCode, UserDetails user, RequestContext reqCtx, boolean cacheable) {
         String cacheKey = BaseContentDispenser.getRenderizationInfoCacheKey(contentId, modelId, langCode, user);
-        ContentRenderizationInfo renderInfo = (ContentRenderizationInfo) ((CacheInfoManager) this.getCacheInfoManager()).getFromCache(ICacheInfoManager.DEFAULT_CACHE_NAME, cacheKey);
+        ContentRenderizationInfo renderInfo = (cacheable)
+                ? (ContentRenderizationInfo) ((CacheInfoManager) this.getCacheInfoManager()).getFromCache(ICacheInfoManager.DEFAULT_CACHE_NAME, cacheKey) : null;
         if (null != renderInfo) {
             return renderInfo;
         }
@@ -123,8 +124,10 @@ public class BaseContentDispenser extends AbstractService implements IContentDis
             _logger.error("Error while rendering content {}", contentId, t);
             return null;
         }
-        String[] groups = BaseContentDispenser.getRenderizationInfoCacheGroupsCsv(contentId, modelId).split(",");
-        ((CacheInfoManager) this.getCacheInfoManager()).putInCache(ICacheInfoManager.DEFAULT_CACHE_NAME, cacheKey, renderInfo, groups);
+        if (cacheable) {
+            String[] groups = BaseContentDispenser.getRenderizationInfoCacheGroupsCsv(contentId, modelId).split(",");
+            ((CacheInfoManager) this.getCacheInfoManager()).putInCache(ICacheInfoManager.DEFAULT_CACHE_NAME, cacheKey, renderInfo, groups);
+        }
         return renderInfo;
     }
 
