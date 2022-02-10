@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.entando</groupId>
         <artifactId>entando-core-parent</artifactId>
-        <version>7.0.9</version>
+        <version>7.0.13</version>
     </parent>
     <groupId>org.entando.entando.plugins</groupId>
     <artifactId>entando-plugin-jacms</artifactId>
@@ -38,6 +38,7 @@
         <owaspSuppressionFileLocation>
             https://raw.githubusercontent.com/entando/entando-core-parent/v${project.parent.version}/owasp-dependency-check-suppression.xml
         </owaspSuppressionFileLocation>
+        <entando-core-bom.version>7.0.0-ENG-3174</entando-core-bom.version>
     </properties>
     <build>
         <resources>
@@ -134,7 +135,7 @@
         <!-- OWASP -->
         <dependency>
             <groupId>org.owasp.encoder</groupId>
-            <artifactId>encoder</artifactId>
+            <artifactId>encoder-jsp</artifactId>
         </dependency>
         <dependency>
             <groupId>org.owasp.encoder</groupId>
@@ -238,10 +239,6 @@
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.j256.ormlite</groupId>
-            <artifactId>ormlite-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
