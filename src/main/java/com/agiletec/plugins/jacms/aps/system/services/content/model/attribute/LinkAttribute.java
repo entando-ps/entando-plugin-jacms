@@ -13,6 +13,16 @@
  */
 package com.agiletec.plugins.jacms.aps.system.services.content.model.attribute;
 
+import com.agiletec.aps.system.common.entity.model.FieldError;
+import com.agiletec.plugins.jacms.aps.system.services.resource.IResourceManager;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jdom.Element;
+import org.entando.entando.ent.util.EntLogging.EntLogger;
+import org.entando.entando.ent.util.EntLogging.EntLogFactory;
+
 import com.agiletec.aps.system.common.entity.model.AttributeFieldError;
 import com.agiletec.aps.system.common.entity.model.AttributeTracer;
 import com.agiletec.aps.system.common.entity.model.FieldError;
@@ -33,12 +43,8 @@ import com.agiletec.plugins.jacms.aps.system.services.linkresolver.ILinkResolver
 import com.agiletec.plugins.jacms.aps.system.services.resource.IResourceManager;
 import org.apache.commons.lang3.StringUtils;
 import org.entando.entando.ent.exception.EntRuntimeException;
-import org.entando.entando.ent.util.EntLogging.EntLogFactory;
-import org.entando.entando.ent.util.EntLogging.EntLogger;
-import org.jdom.Element;
-
-import java.util.*;
-import org.springframework.beans.factory.BeanFactory;
+import org.springframework.web.context.ContextLoader;
+import org.springframework.web.context.WebApplicationContext;
 
 /**
  * Rappresenta una informazione di tipo "link". La destinazione del link è la
@@ -321,4 +327,14 @@ public class LinkAttribute extends TextAttribute implements IReferenceableAttrib
     private transient ILinkResolverManager linkResolverManager;
     private transient IResourceManager resourceManager;
 
+    private void readObject(java.io.ObjectInputStream in)
+            throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        WebApplicationContext ctx = ContextLoader.getCurrentWebApplicationContext();
+        this.setContentManager(ctx.getBean(IContentManager.class));
+        this.setPageManager(ctx.getBean(IPageManager.class));
+        this.setLinkResolverManager(ctx.getBean(ILinkResolverManager.class));
+        this.setResourceManager(ctx.getBean(IResourceManager.class));
+        this.setLangManager(ctx.getBean(ILangManager.class));
+    }
 }
