@@ -13,16 +13,6 @@
  */
 package com.agiletec.plugins.jacms.aps.system.services.content.model.attribute;
 
-import com.agiletec.aps.system.common.entity.model.FieldError;
-import com.agiletec.plugins.jacms.aps.system.services.resource.IResourceManager;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jdom.Element;
-import org.entando.entando.ent.util.EntLogging.EntLogger;
-import org.entando.entando.ent.util.EntLogging.EntLogFactory;
-
 import com.agiletec.aps.system.common.entity.model.AttributeFieldError;
 import com.agiletec.aps.system.common.entity.model.AttributeTracer;
 import com.agiletec.aps.system.common.entity.model.FieldError;
