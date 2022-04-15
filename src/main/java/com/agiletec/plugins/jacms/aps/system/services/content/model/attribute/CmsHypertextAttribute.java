@@ -154,12 +154,13 @@ public class CmsHypertextAttribute extends HypertextAttribute implements IRefere
     @Override
     @Deprecated
     public List<AttributeFieldError> validate(AttributeTracer tracer, ILangManager langManager) {
+        logger.warn("{} expects BeanFactory to be passed to validate method", this.getClass().getName());
         return this.validate(tracer, langManager, null);
     }
 
     @Override
     public List<AttributeFieldError> validate(AttributeTracer tracer, ILangManager langManager, BeanFactory beanFactory) {
-        List<AttributeFieldError> errors = super.validate(tracer, langManager, beanFactory);
+        List<AttributeFieldError> errors = super.validate(tracer, langManager);
         try {
             List<Lang> langs = langManager.getLangs();
             for (Lang lang : langs) {

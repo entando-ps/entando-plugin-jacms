@@ -226,18 +226,22 @@ public class LinkAttribute extends TextAttribute implements IReferenceableAttrib
     @Override
     @Deprecated
     public List<AttributeFieldError> validate(AttributeTracer tracer, ILangManager langManager) {
+        logger.warn("{} expects BeanFactory to be passed to validate method", this.getClass().getName());
         return this.validate(tracer, langManager, null);
     }
 
     @Override
     public List<AttributeFieldError> validate(AttributeTracer tracer, ILangManager langManager, BeanFactory beanFactory) {
-        List<AttributeFieldError> errors = super.validate(tracer, langManager, beanFactory);
+        List<AttributeFieldError> errors = super.validate(tracer, langManager);
         try {
             SymbolicLink symbolicLink = this.getSymbolicLink();
             if (null == symbolicLink) {
                 return errors;
             }
-            SymbolicLinkValidator sler = this.getSymbolicLinkValidator(beanFactory);
+            IContentManager contentManager = beanFactory == null ? this.getContentManager() : beanFactory.getBean(IContentManager.class);
+            IPageManager pageManager = beanFactory == null ? this.getPageManager() : beanFactory.getBean(IPageManager.class);
+            IResourceManager resourceManager = beanFactory == null ? this.getResourceManager() : beanFactory.getBean(IResourceManager.class);
+            SymbolicLinkValidator sler = new SymbolicLinkValidator(contentManager, pageManager, resourceManager);
             AttributeFieldError attributeError = sler.scan(symbolicLink, (Content) this.getParentEntity());
             if (null != attributeError) {
                 AttributeFieldError error = new AttributeFieldError(this, attributeError.getErrorCode(), tracer);
