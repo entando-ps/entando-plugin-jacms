@@ -22,6 +22,8 @@ import com.agiletec.aps.system.common.entity.model.IApsEntity;
 import com.agiletec.aps.system.services.page.IPage;
 import com.agiletec.plugins.jacms.aps.system.JacmsSystemConstants;
 import com.agiletec.plugins.jacms.aps.system.services.content.IContentManager;
+import com.agiletec.plugins.jacms.aps.system.services.content.event.PublicContentChangedEvent;
+import com.agiletec.plugins.jacms.aps.system.services.content.event.PublicContentChangedObserver;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
 import com.agiletec.plugins.jacms.aps.system.services.content.widget.IContentListTagBean;
 import com.agiletec.plugins.jacms.aps.system.services.contentmodel.ContentModel;
@@ -47,6 +49,9 @@ public class CmsCacheWrapperManager extends AbstractService
 		implements ICmsCacheWrapperManager, ContentModelChangedObserver, EntityTypesChangingObserver, ResourceChangedObserver {
 
 	private static final EntLogger _logger = EntLogFactory.getSanitizedLogger(CmsCacheWrapperManager.class);
+	
+	private IContentManager _contentManager;
+	private ICacheInfoManager _cacheInfoManager;
 	
 	@Override
 	public void init() throws Exception {
@@ -132,19 +137,27 @@ public class CmsCacheWrapperManager extends AbstractService
 	}
 	
     public static String getContentCacheGroupsToEvictCsv(String contentId) {
+        String[] groups = getContentCacheGroupsToEvict(contentId);
+        return String.join(",", groups);
+    }
+	
+    public static String[] getContentCacheGroupsToEvict(String contentId) {
         String typeCode = contentId.substring(0, 3);
-        return getContentCacheGroupsToEvictCsv(contentId, typeCode);
+        return getContentCacheGroupsToEvict(contentId, typeCode);
     }
 	
 	public static String getContentCacheGroupsToEvictCsv(String contentId, String typeCode) {
-		StringBuilder builder = new StringBuilder();
+		String[] groups = getContentCacheGroupsToEvict(contentId, typeCode);
+		return String.join(",", groups);
+	}
+	
+	public static String[] getContentCacheGroupsToEvict(String contentId, String typeCode) {
 		String contentsIdCacheGroupId = JacmsSystemConstants.CONTENTS_ID_CACHE_GROUP_PREFIX + typeCode;
-		builder.append(contentsIdCacheGroupId);
 		if (null != contentId) {
 			String contentCacheGroupId = JacmsSystemConstants.CONTENT_CACHE_GROUP_PREFIX + contentId;
-			builder.append(",").append(contentCacheGroupId);
+			return new String[]{contentsIdCacheGroupId, contentCacheGroupId};
 		}
-		return builder.toString();
+		return new String[]{contentsIdCacheGroupId};
 	}
 	
 	protected IContentManager getContentManager() {
@@ -160,8 +173,5 @@ public class CmsCacheWrapperManager extends AbstractService
 	public void setCacheInfoManager(ICacheInfoManager cacheInfoManager) {
 		this._cacheInfoManager = cacheInfoManager;
 	}
-	
-	private IContentManager _contentManager;
-	private ICacheInfoManager _cacheInfoManager;
 	
 }
