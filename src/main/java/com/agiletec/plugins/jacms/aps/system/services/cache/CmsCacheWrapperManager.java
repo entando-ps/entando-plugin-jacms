@@ -31,13 +31,11 @@ import com.agiletec.plugins.jacms.aps.system.services.resource.ResourceUtilizer;
 import com.agiletec.plugins.jacms.aps.system.services.resource.event.ResourceChangedEvent;
 import com.agiletec.plugins.jacms.aps.system.services.resource.event.ResourceChangedObserver;
 import com.agiletec.plugins.jacms.aps.system.services.resource.model.ResourceInterface;
-
 import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.entando.entando.aps.system.services.cache.ICacheInfoManager;
-import org.entando.entando.ent.util.EntLogging.EntLogger;
 import org.entando.entando.ent.util.EntLogging.EntLogFactory;
+import org.entando.entando.ent.util.EntLogging.EntLogger;
 
 /**
  * Cache Wrapper Manager for plugin jacms
@@ -47,121 +45,130 @@ public class CmsCacheWrapperManager extends AbstractService
 		implements ICmsCacheWrapperManager, ContentModelChangedObserver, EntityTypesChangingObserver, ResourceChangedObserver {
 
 	private static final EntLogger _logger = EntLogFactory.getSanitizedLogger(CmsCacheWrapperManager.class);
-	
-	@Override
+
+    private IContentManager _contentManager;
+
+    private ICacheInfoManager _cacheInfoManager;
+
+    @Override
 	public void init() throws Exception {
 		_logger.debug("{} ready.", this.getClass().getName());
 	}
-	
+
 	@Override
-	public void updateFromContentModelChanged(ContentModelChangedEvent event) {
-		try {
-			ContentModel model = event.getContentModel();
+    public void updateFromContentModelChanged(ContentModelChangedEvent event) {
+        try {
+            ContentModel model = event.getContentModel();
 			_logger.info("Notified content model update : type {}",model.getId());
 			String cacheGroupKey = JacmsSystemConstants.CONTENT_MODEL_CACHE_GROUP_PREFIX + model.getId();
 			this.getCacheInfoManager().flushGroup(ICacheInfoManager.DEFAULT_CACHE_NAME, cacheGroupKey);
-		} catch (Throwable t) {
+        } catch (Throwable t) {
 			_logger.error("Error notifing event {}",ContentModelChangedEvent.class.getName(), t);
-		}
-	}
-	
+        }
+    }
+
 	@Override
-	public void updateFromEntityTypesChanging(EntityTypesChangingEvent event) {
-		try {
-			String entityManagerName = event.getEntityManagerName();
+    public void updateFromEntityTypesChanging(EntityTypesChangingEvent event) {
+        try {
+            String entityManagerName = event.getEntityManagerName();
 			if (!entityManagerName.equals(JacmsSystemConstants.CONTENT_MANAGER)) return;
 			if (event.getOperationCode() == EntityTypesChangingEvent.INSERT_OPERATION_CODE) return;
-			IApsEntity oldEntityType = event.getOldEntityType();
-			_logger.info("Notified content type modify : type {}", oldEntityType.getTypeCode());
+            IApsEntity oldEntityType = event.getOldEntityType();
+            _logger.info("Notified content type modify : type {}", oldEntityType.getTypeCode());
 			String typeGroupKey = JacmsSystemConstants.CONTENT_TYPE_CACHE_GROUP_PREFIX + oldEntityType.getTypeCode();
 			this.getCacheInfoManager().flushGroup(ICacheInfoManager.DEFAULT_CACHE_NAME, typeGroupKey);
-		} catch (Throwable t) {
-			_logger.error("Error notifing event {}", EntityTypesChangingEvent.class.getName(), t);
-		}
-	}
-	
+        } catch (Throwable t) {
+            _logger.error("Error notifing event {}", EntityTypesChangingEvent.class.getName(), t);
+        }
+    }
+
 	@Override
-	public void updateFromResourceChanged(ResourceChangedEvent event) {
-		try {
-			ResourceInterface resource = event.getResource();
-			if (null == resource) {
-				return;
-			}
+    public void updateFromResourceChanged(ResourceChangedEvent event) {
+        try {
+            ResourceInterface resource = event.getResource();
+            if (null == resource) {
+                return;
+            }
 			List<String> utilizers = ((ResourceUtilizer) this.getContentManager()).getResourceUtilizers(resource.getId());
-			for (int i = 0; i < utilizers.size(); i++) {
-				String contentId = utilizers.get(i);
+            for (int i = 0; i < utilizers.size(); i++) {
+                String contentId = utilizers.get(i);
 				Content content = this.getContentManager().loadContent(contentId, true);
-				if (null != content) {
+                if (null != content) {
 					this.releaseRelatedItems(content);
-				}
-			}
-		} catch (Throwable t) {
-			_logger.error("Error notifing event {}", ResourceChangedEvent.class.getName(), t);
-		}
-	}
-	
-	protected void releaseRelatedItems(Content content) {
+                }
+            }
+        } catch (Throwable t) {
+            _logger.error("Error notifing event {}", ResourceChangedEvent.class.getName(), t);
+        }
+    }
+
+    protected void releaseRelatedItems(Content content) {
 		this.getCacheInfoManager().flushGroup(ICacheInfoManager.DEFAULT_CACHE_NAME, JacmsSystemConstants.CONTENT_CACHE_GROUP_PREFIX + content.getId());
 		this.getCacheInfoManager().flushGroup(ICacheInfoManager.DEFAULT_CACHE_NAME, JacmsSystemConstants.CONTENTS_ID_CACHE_GROUP_PREFIX + content.getTypeCode());
 		this.getCacheInfoManager().flushEntry(ICacheInfoManager.DEFAULT_CACHE_NAME, JacmsSystemConstants.CONTENT_CACHE_PREFIX + content.getId());
-	}
-	
-	public static String getContentCacheGroupsCsv(String contentId) {
-		StringBuilder builder = new StringBuilder();
-		if (StringUtils.isNotEmpty(contentId)) {
-			String typeCode = contentId.substring(0, 3);
+    }
+
+    public static String getContentCacheGroupsCsv(String contentId) {
+        StringBuilder builder = new StringBuilder();
+        if (StringUtils.isNotEmpty(contentId)) {
+            String typeCode = contentId.substring(0, 3);
 			String contentCacheGroupId = JacmsSystemConstants.CONTENT_CACHE_GROUP_PREFIX + contentId;
 			String typeCacheGroupId = JacmsSystemConstants.CONTENT_TYPE_CACHE_GROUP_PREFIX + typeCode;
-			builder.append(contentCacheGroupId).append(",").append(typeCacheGroupId);
-		}
-		return builder.toString();
-	}
-	
-	public static String getContentListCacheGroupsCsv(IContentListTagBean bean, RequestContext reqCtx) {
-		StringBuilder builder = new StringBuilder();
+            builder.append(contentCacheGroupId).append(",").append(typeCacheGroupId);
+        }
+        return builder.toString();
+    }
+
+    public static String getContentListCacheGroupsCsv(IContentListTagBean bean, RequestContext reqCtx) {
+        StringBuilder builder = new StringBuilder();
 		IPage page = (null != reqCtx) ? (IPage) reqCtx.getExtraParam(SystemConstants.EXTRAPAR_CURRENT_PAGE) : null;
 		String pageCacheGroupName = SystemConstants.PAGES_CACHE_GROUP_PREFIX;
-		if (null != page) {
+        if (null != page) {
 			pageCacheGroupName += page.getCode();
-		} else {
+        } else {
 			pageCacheGroupName += "UNDEFINED";
-		}
+        }
 		String contentTypeCacheGroupName = JacmsSystemConstants.CONTENTS_ID_CACHE_GROUP_PREFIX + bean.getContentType();
-		builder.append(pageCacheGroupName).append(",").append(contentTypeCacheGroupName);
-		return builder.toString();
-	}
-	
-    public static String getContentCacheGroupsToEvictCsv(String contentId) {
-        String typeCode = contentId.substring(0, 3);
-        return getContentCacheGroupsToEvictCsv(contentId, typeCode);
+        builder.append(pageCacheGroupName).append(",").append(contentTypeCacheGroupName);
+        return builder.toString();
     }
-	
-	public static String getContentCacheGroupsToEvictCsv(String contentId, String typeCode) {
-		StringBuilder builder = new StringBuilder();
-		String contentsIdCacheGroupId = JacmsSystemConstants.CONTENTS_ID_CACHE_GROUP_PREFIX + typeCode;
-		builder.append(contentsIdCacheGroupId);
+
+    public static String getContentCacheGroupsToEvictCsv(String contentId) {
+        String[] groups = getContentCacheGroupsToEvict(contentId);
+        return String.join(",", (CharSequence[]) groups);
+    }
+
+    public static String[] getContentCacheGroupsToEvict(String contentId) {
+        String typeCode = contentId.substring(0, 3);
+        return getContentCacheGroupsToEvict(contentId, typeCode);
+    }
+
+    public static String getContentCacheGroupsToEvictCsv(String contentId, String typeCode) {
+        String[] groups = getContentCacheGroupsToEvict(contentId, typeCode);
+        return String.join(",", (CharSequence[]) groups);
+    }
+
+    public static String[] getContentCacheGroupsToEvict(String contentId, String typeCode) {
+        String contentsIdCacheGroupId = JacmsSystemConstants.CONTENTS_ID_CACHE_GROUP_PREFIX + typeCode;
 		if (null != contentId) {
-			String contentCacheGroupId = JacmsSystemConstants.CONTENT_CACHE_GROUP_PREFIX + contentId;
-			builder.append(",").append(contentCacheGroupId);
-		}
-		return builder.toString();
-	}
-	
-	protected IContentManager getContentManager() {
+            String contentCacheGroupId = JacmsSystemConstants.CONTENT_CACHE_GROUP_PREFIX + contentId;
+            return new String[]{contentsIdCacheGroupId, contentCacheGroupId};
+        }
+        return new String[]{contentsIdCacheGroupId};
+    }
+
+    protected IContentManager getContentManager() {
 		return _contentManager;
-	}
-	public void setContentManager(IContentManager contentManager) {
-		this._contentManager = contentManager;
-	}
-	
-	protected ICacheInfoManager getCacheInfoManager() {
+    }
+    public void setContentManager(IContentManager contentManager) {
+        this._contentManager = contentManager;
+    }
+
+    protected ICacheInfoManager getCacheInfoManager() {
 		return _cacheInfoManager;
-	}
-	public void setCacheInfoManager(ICacheInfoManager cacheInfoManager) {
-		this._cacheInfoManager = cacheInfoManager;
-	}
-	
-	private IContentManager _contentManager;
-	private ICacheInfoManager _cacheInfoManager;
-	
+    }
+    public void setCacheInfoManager(ICacheInfoManager cacheInfoManager) {
+        this._cacheInfoManager = cacheInfoManager;
+    }
+    
 }

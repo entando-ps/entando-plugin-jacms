@@ -13,6 +13,15 @@
  */
 package com.agiletec.plugins.jacms.aps.system.services.content.helper;
 
+import com.agiletec.aps.system.common.entity.helper.BaseFilterUtils;
+import com.agiletec.aps.system.common.entity.helper.IEntityFilterBean;
+import com.agiletec.aps.system.common.entity.model.EntitySearchFilter;
+import com.agiletec.aps.system.services.authorization.Authorization;
+import com.agiletec.aps.system.services.group.Group;
+import com.agiletec.aps.system.services.user.UserDetails;
+import com.agiletec.plugins.jacms.aps.system.JacmsSystemConstants;
+import com.agiletec.plugins.jacms.aps.system.services.content.IContentManager;
+import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,21 +30,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import org.entando.entando.aps.system.services.cache.CacheableInfo;
 import org.entando.entando.aps.system.services.cache.ICacheInfoManager;
-import org.entando.entando.ent.util.EntLogging.EntLogger;
-import org.entando.entando.ent.util.EntLogging.EntLogFactory;
-
-import com.agiletec.aps.system.common.entity.helper.BaseFilterUtils;
-import com.agiletec.aps.system.common.entity.helper.IEntityFilterBean;
-import com.agiletec.aps.system.common.entity.model.EntitySearchFilter;
 import org.entando.entando.ent.exception.EntException;
-import com.agiletec.aps.system.services.authorization.Authorization;
-import com.agiletec.aps.system.services.group.Group;
-import com.agiletec.aps.system.services.user.UserDetails;
-import com.agiletec.plugins.jacms.aps.system.services.content.IContentManager;
-import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
+import org.entando.entando.ent.util.EntLogging.EntLogFactory;
+import org.entando.entando.ent.util.EntLogging.EntLogger;
 import org.springframework.cache.annotation.Cacheable;
 
 /**
@@ -77,9 +75,9 @@ public class BaseContentListHelper implements IContentListHelper {
     @Override
     @Cacheable(value = ICacheInfoManager.DEFAULT_CACHE_NAME,
             key = "T(com.agiletec.plugins.jacms.aps.system.services.content.helper.BaseContentListHelper).buildCacheKey(#bean, #user)", condition = "#bean.cacheable")
-    @CacheableInfo(groups = "T(com.agiletec.plugins.jacms.aps.system.JacmsSystemConstants).CONTENTS_ID_CACHE_GROUP_PREFIX.concat(#bean.contentType)", expiresInMinute = 30)
     public List<String> getContentsId(IContentListBean bean, UserDetails user) throws Throwable {
-        this.releaseCache(bean, user);
+        String key = BaseContentListHelper.buildCacheKey(bean, user);
+        this.releaseCache(key);
         List<String> contentsId = null;
         try {
             if (null == bean.getContentType()) {
@@ -87,6 +85,7 @@ public class BaseContentListHelper implements IContentListHelper {
             }
             Collection<String> userGroupCodes = getAllowedGroupCodes(user);
             contentsId = this.getContentManager().loadPublicContentsId(bean.getContentType(), bean.getCategories(), bean.isOrClauseCategoryFilter(), bean.getFilters(), userGroupCodes);
+            this.getCacheInfoManager().putInGroup(ICacheInfoManager.DEFAULT_CACHE_NAME, key, new String[]{JacmsSystemConstants.CONTENTS_ID_CACHE_GROUP_PREFIX + bean.getContentType()});
         } catch (Throwable t) {
             logger.error("Error extracting contents id", t);
             throw new EntException("Error extracting contents id", t);
@@ -94,18 +93,16 @@ public class BaseContentListHelper implements IContentListHelper {
         return contentsId;
     }
 
-    private void releaseCache(IContentListBean bean, UserDetails user) {
-        String key = BaseContentListHelper.buildCacheKey(bean, user);
-        boolean isExpired = this.getCacheInfoManager().isExpired(ICacheInfoManager.DEFAULT_CACHE_NAME, key);
+    private void releaseCache(String key) {
+        boolean isExpired = getCacheInfoManager().isExpired(ICacheInfoManager.DEFAULT_CACHE_NAME, key);
         if (isExpired) {
             this.getCacheInfoManager().flushEntry(ICacheInfoManager.DEFAULT_CACHE_NAME, key);
         }
     }
 
     /**
-     * Return the groups to witch execute the filter to contents. The User
-     * object is non null, extract the groups from the user, else return a
-     * collection with only the "free" group.
+     * Return the groups to witch execute the filter to contents. The User object is non null, extract the groups from
+     * the user, else return a collection with only the "free" group.
      *
      * @param user The user. Can be null.
      * @return The groups to witch execute the filter to contents.
