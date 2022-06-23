@@ -436,7 +436,6 @@ public abstract class AbstractResourceAttribute extends TextAttribute
             logger.warn("Null WebApplicationContext during deserialization");
             return;
         }
-        this.configManager = ctx.getBean(ConfigInterface.class);
         this.resourceManager = ctx.getBean(IResourceManager.class);
     }
 }

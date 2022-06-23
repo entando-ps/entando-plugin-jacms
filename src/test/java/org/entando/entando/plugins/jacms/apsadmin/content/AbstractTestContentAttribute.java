@@ -72,11 +72,7 @@ public abstract class AbstractTestContentAttribute extends AbstractBaseTestConte
 		if (0 == singleFieldErrors) {
 			assertEquals(1, fieldsErrors.size());
 		} else {
-            System.out.println("******************************");
-		System.out.println(fieldsErrors);
-		System.out.println("******************************");
 			assertEquals(2, fieldsErrors.size());
-            System.out.println("***********PASSATO*******************");
 		}
 		assertTrue(fieldsErrors.containsKey("Monotext:MARKER"));
 		List<String> fieldErrors = fieldsErrors.get(formFieldName);

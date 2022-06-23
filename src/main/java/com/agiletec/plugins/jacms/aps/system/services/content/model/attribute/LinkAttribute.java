@@ -268,14 +268,6 @@ public class LinkAttribute extends TextAttribute implements IReferenceableAttrib
         );
     }
 
-    private SymbolicLinkValidator getSymbolicLinkValidator(BeanFactory beanFactory) {
-        return new SymbolicLinkValidator(
-                beanFactory == null ? this.contentManager : beanFactory.getBean(IContentManager.class),
-                beanFactory == null ? this.pageManager : beanFactory.getBean(IPageManager.class),
-                beanFactory == null ? this.resourceManager : beanFactory.getBean(IResourceManager.class)
-        );
-    }
-
     /**
      * Setta il link simbolico caratterizzante l'attributo.
      *
