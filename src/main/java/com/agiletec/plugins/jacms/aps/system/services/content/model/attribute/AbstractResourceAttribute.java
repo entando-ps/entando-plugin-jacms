@@ -19,22 +19,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import java.util.Map.Entry;
 import org.jdom.Element;
 import org.entando.entando.ent.util.EntLogging.EntLogger;
 import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 
-import com.agiletec.aps.system.common.entity.model.AttributeFieldError;
-import com.agiletec.aps.system.common.entity.model.AttributeTracer;
 import com.agiletec.aps.system.common.entity.model.attribute.AbstractJAXBAttribute;
 import com.agiletec.aps.system.common.entity.model.attribute.TextAttribute;
 import com.agiletec.aps.system.services.baseconfig.ConfigInterface;
 import com.agiletec.aps.system.services.group.Group;
 import com.agiletec.aps.system.services.lang.Lang;
-import com.agiletec.plugins.jacms.aps.system.JacmsSystemConstants;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.CmsAttributeReference;
-import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
-import com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.util.ICmsAttributeErrorCodes;
 import com.agiletec.plugins.jacms.aps.system.services.resource.IResourceManager;
 import com.agiletec.plugins.jacms.aps.system.services.resource.model.ResourceInterface;
 import org.apache.commons.lang3.StringUtils;
@@ -50,8 +44,7 @@ public abstract class AbstractResourceAttribute extends TextAttribute
     private static final EntLogger logger = EntLogFactory.getSanitizedLogger(AbstractResourceAttribute.class);
 
     private Map<String, ResourceInterface> resources = new HashMap<>();
-
-    private transient ConfigInterface configManager;
+    
     private transient IResourceManager resourceManager;
 
     private Map<String, Map<String, String>> metadatas;
@@ -179,7 +172,6 @@ public abstract class AbstractResourceAttribute extends TextAttribute
     @Override
     public Object getAttributePrototype() {
         AbstractResourceAttribute prototype = (AbstractResourceAttribute) super.getAttributePrototype();
-        prototype.setConfigManager(this.getConfigManager());
         prototype.setResourceManager(this.getResourceManager());
         return prototype;
     }
@@ -373,19 +365,7 @@ public abstract class AbstractResourceAttribute extends TextAttribute
             String text = this.getTextForLang(langCode);
             value.setText(text);
             this.setRenderingLang(langCode);
-            String path = this.getDefaultPath();
-            value.setPath(path);
             value.setResourceId(resource.getId());
-            StringBuilder restResourcePath = new StringBuilder();
-            restResourcePath.append(this.getConfigManager().getParam("applicationBaseURL"));
-            restResourcePath.append("legacyapi/rs/").append(langCode).append("/jacms/");
-            if (this.getType().equals(JacmsSystemConstants.RESOURE_ATTACH_CODE)) {
-                restResourcePath.append("attachment");
-            } else {
-                restResourcePath.append("image");
-            }
-            restResourcePath.append("?id=").append(resource.getId());
-            value.setRestResourcePath(restResourcePath.toString());
         } catch (Throwable t) {
             logger.error("Error creating jaxb response. lang: {}", langCode, t);
             throw new RuntimeException("Error creating jaxb response", t);
@@ -434,18 +414,8 @@ public abstract class AbstractResourceAttribute extends TextAttribute
         return Status.EMPTY;
     }
 
-    protected abstract String getDefaultPath();
-
     public Map<String, ResourceInterface> getResources() {
         return this.resources;
-    }
-
-    protected ConfigInterface getConfigManager() {
-        return configManager;
-    }
-
-    public void setConfigManager(ConfigInterface configManager) {
-        this.configManager = configManager;
     }
 
     protected IResourceManager getResourceManager() {

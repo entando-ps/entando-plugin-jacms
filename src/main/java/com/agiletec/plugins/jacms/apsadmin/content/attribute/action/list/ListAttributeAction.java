@@ -39,8 +39,8 @@ public class ListAttributeAction extends com.agiletec.apsadmin.system.entity.att
 	@Override
 	public String addListElement() {
 		try {
-			super.addListElement();
-			Content content = this.getContent();
+			Content content = (Content) this.getCurrentApsEntity();
+            this.executeAddListElement(content);
 			int index = -1;
 			ListAttributeInterface currentAttribute = (ListAttributeInterface) content.getAttribute(this.getAttributeName());
 			String nestedType = currentAttribute.getNestedAttributeTypeCode();
@@ -54,6 +54,7 @@ public class ListAttributeAction extends com.agiletec.apsadmin.system.entity.att
 				List<AttributeInterface> attributes = ((ListAttribute) currentAttribute).getAttributeList(this.getListLangCode());
 				index = attributes.size() - 1;
 			}
+            this.updateContent(content);
 			this.setElementIndex(index);
 			if (nestedType.equals("Attach") || nestedType.equals("Image")) {
 				this.setResourceTypeCode(nestedType);
@@ -63,9 +64,34 @@ public class ListAttributeAction extends com.agiletec.apsadmin.system.entity.att
 			}
 		} catch (Throwable t) {
 			_logger.error("error in addListElement", t);
-			//ApsSystemUtils.logThrowable(t, this, "addListElement");
 			return FAILURE;
 		}
+	}
+    
+	@Override
+	public String moveListElement() {
+		try {
+            Content content = (Content) this.getCurrentApsEntity();
+			this.executeMoveListElement(content);
+            this.updateContent(content);
+		} catch (Throwable t) {
+			_logger.error("error in moveListElement", t);
+			return FAILURE;
+		}
+		return SUCCESS;
+	}
+	
+	@Override
+	public String removeListElement() {
+		try {
+            Content content = (Content) this.getCurrentApsEntity();
+			this.executeRemoveListElement(content);
+            this.updateContent(content);
+		} catch (Throwable t) {
+			_logger.error("error in removeListElement", t);
+			return FAILURE;
+		}
+		return SUCCESS;
 	}
 	
 	@Override
@@ -82,8 +108,13 @@ public class ListAttributeAction extends com.agiletec.apsadmin.system.entity.att
 	protected Content updateContentOnSession() {
 		Content content = this.getContent();
 		this.getContentActionHelper().updateEntity(content, this.getRequest());
+        this.updateContent(content);
 		return content;
 	}
+    
+    protected void updateContent(Content content) {
+		this.getRequest().getSession().setAttribute(ContentActionConstants.SESSION_PARAM_NAME_CURRENT_CONTENT_PREXIX + this.getContentOnSessionMarker(), content);
+    }
 	
 	public String getEntryContentAnchorDest() {
 		return "contentedit_" + this.getListLangCode() + "_" + this.getAttributeName();

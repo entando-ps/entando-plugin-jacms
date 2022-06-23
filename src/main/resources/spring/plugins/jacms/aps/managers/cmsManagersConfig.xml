@@ -240,7 +240,6 @@
     <bean id="jacmsAbstractResourceAttribute" class="com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.AbstractResourceAttribute" 
           parent="abstractEntityAttribute" abstract="true" >
         <property name="resourceManager" ref="jacmsResourceManager"/>
-        <property name="configManager" ref="BaseConfigManager"/>
     </bean>
 	
     <bean id="jacmsImageAttribute" class="com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.ImageAttribute" parent="jacmsAbstractResourceAttribute" >

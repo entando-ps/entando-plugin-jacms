@@ -63,6 +63,7 @@ public class LinkAttributeActionHelper implements ILinkAttributeActionHelper {
 		AttributeInterface attribute = (AttributeInterface) currentContent.getAttribute(attributeName);
 		joinLink(attribute, destinations, destType, properties, request);
 		removeSessionParams(session);
+        this.updateContent(currentContent, request);
 	}
 	
 	@Override
@@ -73,6 +74,7 @@ public class LinkAttributeActionHelper implements ILinkAttributeActionHelper {
 		AttributeInterface attribute = (AttributeInterface) currentContent.getAttribute(attributeName);
 		removeLink(attribute, request);
 		removeSessionParams(session);
+        this.updateContent(currentContent, request);
 	}
 	
 	@Override
@@ -175,12 +177,22 @@ public class LinkAttributeActionHelper implements ILinkAttributeActionHelper {
 	 * @return Il contenuto in sessione.
 	 */
 	protected Content getContent(HttpServletRequest request) {
-		String contentOnSessionMarker = (String) request.getAttribute("contentOnSessionMarker");
-		if (null == contentOnSessionMarker || contentOnSessionMarker.trim().length() == 0) {
-			contentOnSessionMarker = request.getParameter("contentOnSessionMarker");
-		}
+		String contentOnSessionMarker = this.extractContentMarker(request);
 		return (Content) request.getSession()
 				.getAttribute(ContentActionConstants.SESSION_PARAM_NAME_CURRENT_CONTENT_PREXIX + contentOnSessionMarker);
 	}
 	
+    protected void updateContent(Content content, HttpServletRequest request) {
+        String contentOnSessionMarker = this.extractContentMarker(request);
+		request.getSession().setAttribute(ContentActionConstants.SESSION_PARAM_NAME_CURRENT_CONTENT_PREXIX + contentOnSessionMarker, content);
+    }
+    
+    protected String extractContentMarker(HttpServletRequest request) {
+		String contentOnSessionMarker = (String) request.getAttribute("contentOnSessionMarker");
+		if (null == contentOnSessionMarker || contentOnSessionMarker.trim().length() == 0) {
+			contentOnSessionMarker = request.getParameter("contentOnSessionMarker");
+		}
+        return contentOnSessionMarker;
+    }
+    
 }

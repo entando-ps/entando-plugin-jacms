@@ -32,7 +32,7 @@ import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.SymbolicLink;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.util.HypertextAttributeUtil;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.util.SymbolicLinkValidator;
-import org.entando.entando.ent.exception.EntRuntimeException;
+import org.springframework.beans.factory.BeanFactory;
 
 /**
  * Rappresenta una informazione di tipo "ipertesto" specifico per il cms.
@@ -151,8 +151,8 @@ public class CmsHypertextAttribute extends HypertextAttribute implements IRefere
     }
 
     @Override
-    public List<AttributeFieldError> validate(AttributeTracer tracer, ILangManager langManager) {
-        List<AttributeFieldError> errors = super.validate(tracer, langManager);
+    public List<AttributeFieldError> validate(AttributeTracer tracer, ILangManager langManager, BeanFactory beanFactory) {
+        List<AttributeFieldError> errors = super.validate(tracer, langManager, beanFactory);
         try {
             List<Lang> langs = langManager.getLangs();
             for (Lang lang : langs) {
@@ -164,7 +164,7 @@ public class CmsHypertextAttribute extends HypertextAttribute implements IRefere
                 }
                 List<SymbolicLink> links = HypertextAttributeUtil.getSymbolicLinksOnText(text);
                 if (null != links && !links.isEmpty()) {
-                    SymbolicLinkValidator sler = new SymbolicLinkValidator(this.getContentManager(), this.getPageManager(), this.getResourceManager());
+                    SymbolicLinkValidator sler = this.getSymbolicLinkValidator(beanFactory);
                     for (SymbolicLink symbLink : links) {
                         AttributeFieldError attributeError = sler.scan(symbLink, (Content) this.getParentEntity());
                         if (null != attributeError) {
@@ -184,6 +184,14 @@ public class CmsHypertextAttribute extends HypertextAttribute implements IRefere
             throw new RuntimeException("Error validating Attribute '" + this.getName() + "'", t);
         }
         return errors;
+    }
+    
+    private SymbolicLinkValidator getSymbolicLinkValidator(BeanFactory beanFactory) {
+        return new SymbolicLinkValidator(
+                beanFactory == null ? this.getContentManager() : beanFactory.getBean(IContentManager.class),
+                beanFactory == null ? this.getPageManager() : beanFactory.getBean(IPageManager.class),
+                beanFactory == null ? this.getResourceManager() : beanFactory.getBean(IResourceManager.class)
+        );
     }
 
     protected IContentManager getContentManager() {

@@ -13,17 +13,9 @@
  */
 package com.agiletec.plugins.jacms.aps.system.services.content.model.attribute;
 
-import com.agiletec.aps.system.common.entity.model.FieldError;
-import com.agiletec.plugins.jacms.aps.system.services.resource.IResourceManager;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jdom.Element;
-import org.entando.entando.ent.util.EntLogging.EntLogger;
-import org.entando.entando.ent.util.EntLogging.EntLogFactory;
-
 import com.agiletec.aps.system.common.entity.model.AttributeFieldError;
 import com.agiletec.aps.system.common.entity.model.AttributeTracer;
+import com.agiletec.aps.system.common.entity.model.FieldError;
 import com.agiletec.aps.system.common.entity.model.attribute.AbstractJAXBAttribute;
 import com.agiletec.aps.system.common.entity.model.attribute.TextAttribute;
 import com.agiletec.aps.system.services.lang.ILangManager;
@@ -33,13 +25,20 @@ import com.agiletec.plugins.jacms.aps.system.services.content.IContentManager;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.CmsAttributeReference;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.SymbolicLink;
+import com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.IReferenceableAttribute;
+import com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.JAXBLinkAttribute;
+import com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.JAXBLinkValue;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.util.SymbolicLinkValidator;
 import com.agiletec.plugins.jacms.aps.system.services.linkresolver.ILinkResolverManager;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import com.agiletec.plugins.jacms.aps.system.services.resource.IResourceManager;
 import org.apache.commons.lang3.StringUtils;
 import org.entando.entando.ent.exception.EntRuntimeException;
+import org.entando.entando.ent.util.EntLogging.EntLogFactory;
+import org.entando.entando.ent.util.EntLogging.EntLogger;
+import org.jdom.Element;
+
+import java.util.*;
+import org.springframework.beans.factory.BeanFactory;
 
 /**
  * Rappresenta una informazione di tipo "link". La destinazione del link è la
@@ -181,7 +180,6 @@ public class LinkAttribute extends TextAttribute implements IReferenceableAttrib
         JAXBLinkValue value = new JAXBLinkValue();
         String text = this.getTextForLang(langCode);
         value.setText(text);
-        value.setUrl(this.getLinkResolverManager().resolveLink(this.getSymbolicLink(), this.getParentEntity().getId(), null));
         value.setSymbolicLink(this.getSymbolicLink());
         jaxbAttribute.setLinkValue(value);
         return jaxbAttribute;
@@ -220,14 +218,14 @@ public class LinkAttribute extends TextAttribute implements IReferenceableAttrib
     }
 
     @Override
-    public List<AttributeFieldError> validate(AttributeTracer tracer, ILangManager langManager) {
-        List<AttributeFieldError> errors = super.validate(tracer, langManager);
+    public List<AttributeFieldError> validate(AttributeTracer tracer, ILangManager langManager, BeanFactory beanFactory) {
+        List<AttributeFieldError> errors = super.validate(tracer, langManager, beanFactory);
         try {
             SymbolicLink symbolicLink = this.getSymbolicLink();
             if (null == symbolicLink) {
                 return errors;
             }
-            SymbolicLinkValidator sler = new SymbolicLinkValidator(this.getContentManager(), this.getPageManager(), this.getResourceManager());
+            SymbolicLinkValidator sler = this.getSymbolicLinkValidator(beanFactory);
             AttributeFieldError attributeError = sler.scan(symbolicLink, (Content) this.getParentEntity());
             if (null != attributeError) {
                 AttributeFieldError error = new AttributeFieldError(this, attributeError.getErrorCode(), tracer);
@@ -248,6 +246,14 @@ public class LinkAttribute extends TextAttribute implements IReferenceableAttrib
             }
         }
         return errors;
+    }
+    
+    private SymbolicLinkValidator getSymbolicLinkValidator(BeanFactory beanFactory) {
+        return new SymbolicLinkValidator(
+                beanFactory == null ? this.getContentManager() : beanFactory.getBean(IContentManager.class),
+                beanFactory == null ? this.getPageManager() : beanFactory.getBean(IPageManager.class),
+                beanFactory == null ? this.getResourceManager() : beanFactory.getBean(IResourceManager.class)
+        );
     }
 
     /**
