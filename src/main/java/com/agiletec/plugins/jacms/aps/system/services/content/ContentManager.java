@@ -27,6 +27,7 @@ import com.agiletec.aps.system.services.group.GroupUtilizer;
 import com.agiletec.aps.system.services.keygenerator.IKeyGeneratorManager;
 import com.agiletec.aps.system.services.page.PageUtilizer;
 import com.agiletec.plugins.jacms.aps.system.JacmsSystemConstants;
+import com.agiletec.plugins.jacms.aps.system.services.cache.CmsCacheWrapperManager;
 import com.agiletec.plugins.jacms.aps.system.services.content.event.PublicContentChangedEvent;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.ContentRecordVO;
@@ -40,7 +41,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.entando.entando.aps.system.services.cache.CacheInfoEvict;
 import org.entando.entando.aps.system.services.cache.CacheInfoManager;
 import org.entando.entando.aps.system.services.cache.ICacheInfoManager;
 import org.entando.entando.ent.exception.EntException;
@@ -291,7 +291,6 @@ public class ContentManager extends ApsEntityManager
             if (updateDate) {
                 content.incrementVersion(false);
             }
-
             String status = content.getStatus();
             if (null == status || status.equals(Content.STATUS_PUBLIC)) {
                 content.setStatus(Content.STATUS_DRAFT);
@@ -331,8 +330,6 @@ public class ContentManager extends ApsEntityManager
     @Override
     @CacheEvict(value = ICacheInfoManager.DEFAULT_CACHE_NAME,
             key = "T(com.agiletec.plugins.jacms.aps.system.JacmsSystemConstants).CONTENT_CACHE_PREFIX.concat(#content.id)", condition = "#content.id != null")
-    @CacheInfoEvict(value = ICacheInfoManager.DEFAULT_CACHE_NAME,
-            groups = "T(com.agiletec.plugins.jacms.aps.system.services.cache.CmsCacheWrapperManager).getContentCacheGroupsToEvictCsv(#content.id, #content.typeCode)")
     public String insertOnLineContent(Content content) throws EntException {
         String id = null;
         try {
@@ -352,6 +349,7 @@ public class ContentManager extends ApsEntityManager
             }
             id = content.getId();
             this.notifyPublicContentChanging(content, operationEventCode);
+            this.flushGroups(content.getId(), content.getTypeCode());
         } catch (Throwable t) {
             logger.error("Error while inserting content on line", t);
             throw new EntException("Error while inserting content on line", t);
@@ -402,8 +400,6 @@ public class ContentManager extends ApsEntityManager
     @Override
     @CacheEvict(value = ICacheInfoManager.DEFAULT_CACHE_NAME,
             key = "T(com.agiletec.plugins.jacms.aps.system.JacmsSystemConstants).CONTENT_CACHE_PREFIX.concat(#content.id)", condition = "#content.id != null")
-    @CacheInfoEvict(value = ICacheInfoManager.DEFAULT_CACHE_NAME,
-            groups = "T(com.agiletec.plugins.jacms.aps.system.services.cache.CmsCacheWrapperManager).getContentCacheGroupsToEvictCsv(#content.id, #content.typeCode)")
     public String removeOnLineContent(Content content) throws EntException {
         try {
             content.setLastModified(new Date());
@@ -413,6 +409,7 @@ public class ContentManager extends ApsEntityManager
             }
             this.getContentDAO().removeOnLineContent(content);
             this.notifyPublicContentChanging(content, PublicContentChangedEvent.REMOVE_OPERATION_CODE);
+            this.flushGroups(content.getId(), content.getTypeCode());
             return content.getId();
         } catch (Throwable t) {
             logger.error("Error while removing onLine content", t);
@@ -420,12 +417,14 @@ public class ContentManager extends ApsEntityManager
         }
     }
 
-    /**
-     * Notify the modification of a published content.
-     *
-     * @param content The modified content.
-     * @param operationCode the operation code to notify.
-     */
+    private void flushGroups(String contentId, String typeCode) {
+        String[] groups = (null != typeCode) ? CmsCacheWrapperManager.getContentCacheGroupsToEvict(contentId, typeCode) : CmsCacheWrapperManager.getContentCacheGroupsToEvict(contentId);
+        for (int i = 0; i < groups.length; i++) {
+            String groupCode = groups[i];
+            getCacheInfoManager().flushGroup("Entando_Cache", groupCode);
+        }
+    }
+
     private void notifyPublicContentChanging(Content content, int operationCode) {
         Map<String, String> properties = new HashMap<>();
         if (null != content) {
@@ -484,8 +483,6 @@ public class ContentManager extends ApsEntityManager
     @Override
     @CacheEvict(value = ICacheInfoManager.DEFAULT_CACHE_NAME,
             key = "T(com.agiletec.plugins.jacms.aps.system.JacmsSystemConstants).CONTENT_CACHE_PREFIX.concat(#content.id)", condition = "#content.id != null")
-    @CacheInfoEvict(value = ICacheInfoManager.DEFAULT_CACHE_NAME,
-            groups = "T(com.agiletec.plugins.jacms.aps.system.services.cache.CmsCacheWrapperManager).getContentCacheGroupsToEvictCsv(#content.id)")
     public String deleteContent(Content content) throws EntException {
         return this.deleteContent(content.getId());
     }
@@ -493,11 +490,10 @@ public class ContentManager extends ApsEntityManager
     @Override
     @CacheEvict(value = ICacheInfoManager.DEFAULT_CACHE_NAME,
             key = "T(com.agiletec.plugins.jacms.aps.system.JacmsSystemConstants).CONTENT_CACHE_PREFIX.concat(#contentId)", condition = "#contentId != null")
-    @CacheInfoEvict(value = ICacheInfoManager.DEFAULT_CACHE_NAME,
-            groups = "T(com.agiletec.plugins.jacms.aps.system.services.cache.CmsCacheWrapperManager).getContentCacheGroupsToEvictCsv(#contentId)")
     public String deleteContent(String contentId) throws EntException {
         try {
             this.getContentDAO().deleteEntity(contentId);
+            this.flushGroups(contentId, (String) null);
             return contentId;
         } catch (Throwable t) {
             logger.error("Error while deleting content {}", contentId, t);
@@ -580,7 +576,7 @@ public class ContentManager extends ApsEntityManager
     public SearcherDaoPaginatedResult<String> getPaginatedPublicContentsId(String[] categories, boolean orClauseCategoryFilter, EntitySearchFilter[] filters, Collection<String> userGroupCodes) throws EntException {
         return this.getPaginatedContentsId(categories, orClauseCategoryFilter, filters, userGroupCodes, this.getPublicContentSearcherDAO());
     }
-    
+
     private SearcherDaoPaginatedResult<String> getPaginatedContentsId(String[] categories, boolean orClauseCategoryFilter, 
             EntitySearchFilter[] filters, Collection<String> userGroupCodes, IContentSearcherDAO searcherDao) throws EntException {
         SearcherDaoPaginatedResult<String> pagedResult = null;
@@ -594,7 +590,7 @@ public class ContentManager extends ApsEntityManager
         }
         return pagedResult;
     }
-    
+
     @Override
     public List getPageUtilizers(String pageCode) throws EntException {
         try {
