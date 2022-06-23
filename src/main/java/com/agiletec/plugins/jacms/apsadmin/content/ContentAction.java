@@ -139,8 +139,8 @@ public class ContentAction extends AbstractContentAction {
     }
 
     public String configureMainGroup() {
-        Content content = this.updateContentOnSession();
         try {
+            Content content = this.updateContentOnSession();
             if (null == content) {
                 _logger.warn("Null content on session");
                 return FAILURE;
@@ -149,6 +149,7 @@ public class ContentAction extends AbstractContentAction {
                 String mainGroup = this.getRequest().getParameter("mainGroup");
                 if (mainGroup != null && null != this.getGroupManager().getGroup(mainGroup)) {
                     content.setMainGroup(mainGroup);
+                    this.updateContent(content);
                 }
             }
         } catch (Throwable t) {
@@ -165,14 +166,15 @@ public class ContentAction extends AbstractContentAction {
      * @return Il codice del risultato dell'azione.
      */
     public String joinGroup() {
-        this.updateContentOnSession();
         try {
+            Content content = this.updateContentOnSession();
             for (String extraGroupName : extraGroupNames) {
                 Group group = this.getGroupManager().getGroup(extraGroupName);
                 if (null != group) {
-                    this.getContent().addGroup(extraGroupName);
+                    content.addGroup(extraGroupName);
                 }
             }
+            this.updateContent(content);
             // we want to clear the group selection after the join
             extraGroupNames.clear();
         } catch (Throwable t) {
@@ -189,15 +191,16 @@ public class ContentAction extends AbstractContentAction {
      * @return Il codice del risultato dell'azione.
      */
     public String removeGroup() {
-        this.updateContentOnSession();
         try {
+            Content content = this.updateContentOnSession();
             // NOTE: previously the extraGroupNames variable was reused
             // also for group removal. It is necessary to have a separate
             // variable for this, in order to avoid conflicting with the
             // joinGroup() method. See EN-2166.
             Group group = this.getGroupManager().getGroup(groupToRemove);
             if (null != group) {
-                this.getContent().getGroups().remove(group.getName());
+                content.getGroups().remove(group.getName());
+                this.updateContent(content);
             }
         } catch (Throwable t) {
             _logger.error("error in removeGroup", t);
@@ -223,6 +226,7 @@ public class ContentAction extends AbstractContentAction {
                     this.getContentManager().saveContent(currentContent);
                 }
             }
+            this.updateContent(currentContent);
         } catch (Throwable t) {
             _logger.error("error in saveAndContinue", t);
             return FAILURE;

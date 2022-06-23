@@ -25,7 +25,7 @@ import com.agiletec.plugins.jacms.aps.system.services.content.model.SymbolicLink
 /**
  * @author E.Santoboni
  */
-@XmlType(propOrder = {"text", "url", "symbolicLink"})
+@XmlType(propOrder = {"text", "symbolicLink"})
 @XmlSeeAlso({SymbolicLink.class, HashMap.class})
 public class JAXBLinkValue implements Serializable {
 
@@ -38,15 +38,6 @@ public class JAXBLinkValue implements Serializable {
         this.text = text;
     }
 
-    @XmlElement(name = "url", required = true)
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
     @XmlElement(name = "symbolicLink", required = false)
     public SymbolicLink getSymbolicLink() {
         return symbolicLink;
@@ -57,7 +48,6 @@ public class JAXBLinkValue implements Serializable {
     }
 
     private String text;
-    private String url;
     private SymbolicLink symbolicLink;
 
 }

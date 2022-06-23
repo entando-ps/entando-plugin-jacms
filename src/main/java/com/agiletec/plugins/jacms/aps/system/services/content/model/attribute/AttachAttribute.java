@@ -45,11 +45,6 @@ public class AttachAttribute extends AbstractResourceAttribute {
 	}
 
 	@Override
-	protected String getDefaultPath() {
-		return this.getAttachPath();
-	}
-
-	@Override
 	public String getIndexeableFieldValue() {
 		StringBuilder buffer = new StringBuilder();
 		String parentText = super.getIndexeableFieldValue();

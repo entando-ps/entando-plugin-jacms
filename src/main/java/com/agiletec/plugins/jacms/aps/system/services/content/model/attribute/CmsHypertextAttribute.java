@@ -192,6 +192,14 @@ public class CmsHypertextAttribute extends HypertextAttribute implements IRefere
         }
         return errors;
     }
+    
+    private SymbolicLinkValidator getSymbolicLinkValidator(BeanFactory beanFactory) {
+        return new SymbolicLinkValidator(
+                beanFactory == null ? this.getContentManager() : beanFactory.getBean(IContentManager.class),
+                beanFactory == null ? this.getPageManager() : beanFactory.getBean(IPageManager.class),
+                beanFactory == null ? this.getResourceManager() : beanFactory.getBean(IResourceManager.class)
+        );
+    }
 
     private SymbolicLinkValidator getSymbolicLinkValidator(BeanFactory beanFactory) {
         return new SymbolicLinkValidator(

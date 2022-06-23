@@ -35,13 +35,14 @@ public class ContentCategoryAction extends AbstractTreeAction {
 	 * @return The result code.
 	 */
 	public String joinCategory() {
-		this.updateContentOnSession();
 		try {
+            Content content = this.updateContentOnSession();
 			String categoryCode = this.getCategoryCode();
 			Category category = this.getCategoryManager().getCategory(categoryCode);
 			if (null != category && !category.getCode().equals(category.getParentCode()) 
-					&& !this.getContent().getCategories().contains(category)) { 
-				this.getContent().addCategory(category);
+					&& !content.getCategories().contains(category)) { 
+				content.addCategory(category);
+                this.updateContent(content);
 			}
 		} catch (Throwable t) {
 			_logger.error("error in joinCategory", t);
@@ -55,12 +56,13 @@ public class ContentCategoryAction extends AbstractTreeAction {
 	 * @return The result code.
 	 */
 	public String removeCategory() {
-		this.updateContentOnSession();
 		try {
+            Content content = this.updateContentOnSession();
 			String categoryCode = this.getCategoryCode();
 			Category category = this.getCategoryManager().getCategory(categoryCode);
 			if (null != category) {
-				this.getContent().removeCategory(category);
+				content.removeCategory(category);
+                this.updateContent(content);
 			}
 		} catch (Throwable t) {
 			_logger.error("error in removeCategory", t);
@@ -81,8 +83,13 @@ public class ContentCategoryAction extends AbstractTreeAction {
 	protected Content updateContentOnSession() {
 		Content content = this.getContent();
 		this.getContentActionHelper().updateEntity(content, this.getRequest());
+        this.updateContent(content);
 		return content;
 	}
+    
+    protected void updateContent(Content content) {
+		this.getRequest().getSession().setAttribute(ContentActionConstants.SESSION_PARAM_NAME_CURRENT_CONTENT_PREXIX + this.getContentOnSessionMarker(), content);
+    }
 	
 	public String getContentOnSessionMarker() {
 		return _contentOnSessionMarker;

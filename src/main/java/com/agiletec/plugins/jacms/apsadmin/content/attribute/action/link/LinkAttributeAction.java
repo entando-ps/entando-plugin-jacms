@@ -41,14 +41,14 @@ public class LinkAttributeAction extends BaseAction implements ILinkAttributeAct
 	@Override
 	public String chooseLink() {
 		try {
-			this.getContentActionHelper().updateEntity(this.getContent(), this.getRequest());
+            Content content = this.getContent();
+			this.getContentActionHelper().updateEntity(content, this.getRequest());
 			this.getLinkAttributeHelper().initSessionParams(this, this.getRequest());
+            this.updateContent(content);
 		} catch (Throwable t) {
 			_logger.error("chooseLink", t);
-			//ApsSystemUtils.logThrowable(t, this, "chooseLink");
 			return FAILURE;
 		}
-		//FA IL FORWARD ALLA choose link type
 		return SUCCESS;
 	}
 	
@@ -99,8 +99,7 @@ public class LinkAttributeAction extends BaseAction implements ILinkAttributeAct
             break;
         default:
         	_logger.error("invalida link type: {}", destType);
-        	//ApsSystemUtils.logThrowable(new RuntimeException("Link non riconosciuto : " +	"type " + destType), this, "configLink");
-            break;
+        	break;
         }
 		return result;
 	}
@@ -108,12 +107,13 @@ public class LinkAttributeAction extends BaseAction implements ILinkAttributeAct
 	@Override
 	public String removeLink() {
 		try {
-			this.getContentActionHelper().updateEntity(this.getContent(), this.getRequest());
+            Content content = this.getContent();
+			this.getContentActionHelper().updateEntity(content, this.getRequest());
 			this.getLinkAttributeHelper().initSessionParams(this, this.getRequest());
 			this.getLinkAttributeHelper().removeLink(this.getRequest());
+            this.updateContent(content);
 		} catch (Throwable t) {
 			_logger.error("error in removeLink", t);
-			//ApsSystemUtils.logThrowable(t, this, "removeLink");
 			return FAILURE;
 		}
 		return SUCCESS;
@@ -143,6 +143,10 @@ public class LinkAttributeAction extends BaseAction implements ILinkAttributeAct
 		return (Content) this.getRequest().getSession()
 				.getAttribute(ContentActionConstants.SESSION_PARAM_NAME_CURRENT_CONTENT_PREXIX + this.getContentOnSessionMarker());
 	}
+    
+    protected void updateContent(Content content) {
+		this.getRequest().getSession().setAttribute(ContentActionConstants.SESSION_PARAM_NAME_CURRENT_CONTENT_PREXIX + this.getContentOnSessionMarker(), content);
+    }
 	
 	public String getContentOnSessionMarker() {
 		return _contentOnSessionMarker;
@@ -169,7 +173,6 @@ public class LinkAttributeAction extends BaseAction implements ILinkAttributeAct
 			contentVo = this.getContentManager().loadContentVO(contentId);
 		} catch (Throwable t) {
 			_logger.error("error in getContentVo", t);
-			//ApsSystemUtils.logThrowable(t, this, "getContentVo");
 		}
 		return contentVo;
 	}
