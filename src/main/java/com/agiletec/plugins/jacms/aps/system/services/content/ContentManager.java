@@ -73,6 +73,8 @@ public class ContentManager extends ApsEntityManager
     
     private ICacheInfoManager cacheInfoManager;
 
+    private ICacheInfoManager cacheInfoManager;
+
     @Override
     protected String getConfigItemName() {
         return JacmsSystemConstants.CONFIG_ITEM_CONTENT_TYPES;
