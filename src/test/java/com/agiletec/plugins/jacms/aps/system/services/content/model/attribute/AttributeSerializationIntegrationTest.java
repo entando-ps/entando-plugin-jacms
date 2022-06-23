@@ -45,13 +45,10 @@ class AttributeSerializationIntegrationTest extends BaseTestCase {
     void testSerializeAttachAttribute() throws Exception {
         AttachAttribute attribute = new AttachAttribute();
         attribute.setResourceManager(resourceManager);
-        attribute.setConfigManager(configManager);
         attribute = testSerializeAndDeserialize(attribute);
         Assertions.assertNotNull(attribute.getResourceManager());
-        Assertions.assertNotNull(attribute.getConfigManager());
         attribute = testSerializeAndDeserializeNullApplicationContext(attribute);
         Assertions.assertNull(attribute.getResourceManager());
-        Assertions.assertNull(attribute.getConfigManager());
     }
 
     @Test

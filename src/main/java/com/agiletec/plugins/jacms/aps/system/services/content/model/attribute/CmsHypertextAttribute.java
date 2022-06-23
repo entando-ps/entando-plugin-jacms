@@ -201,14 +201,6 @@ public class CmsHypertextAttribute extends HypertextAttribute implements IRefere
         );
     }
 
-    private SymbolicLinkValidator getSymbolicLinkValidator(BeanFactory beanFactory) {
-        return new SymbolicLinkValidator(
-                beanFactory == null ? this.contentManager : beanFactory.getBean(IContentManager.class),
-                beanFactory == null ? this.pageManager : beanFactory.getBean(IPageManager.class),
-                beanFactory == null ? this.resourceManager : beanFactory.getBean(IResourceManager.class)
-        );
-    }
-
     @Deprecated
     protected IContentManager getContentManager() {
         return contentManager;
