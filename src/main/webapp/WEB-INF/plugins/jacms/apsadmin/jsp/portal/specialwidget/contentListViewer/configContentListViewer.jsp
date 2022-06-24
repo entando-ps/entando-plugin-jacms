@@ -35,10 +35,10 @@
 <div id="main" role="main">
     <!-- Info Details  -->
     <div class="button-bar mt-20">
-        <s:action namespace="/do/Page" name="printPageDetails"
+        <wpsa:action namespace="/do/Page" name="printPageDetails"
                   executeResult="true" ignoreContextParams="true">
             <s:param name="selectedNode" value="currentPage.code"></s:param>
-        </s:action>
+        </wpsa:action>
     </div>
 
     <s:form action="saveListViewerConfig" namespace="/do/jacms/Page/SpecialWidget/ListViewer" cssClass="form-horizontal mt-20">

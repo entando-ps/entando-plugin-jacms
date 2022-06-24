@@ -241,11 +241,11 @@
                                                     name="label.category" />
                                             </label>
                                             <div class="col-sm-9">
-                                                <s:action name="showCategoryTreeOnContentFinding"
+                                                <wpsa:action name="showCategoryTreeOnContentFinding"
                                                           namespace="/do/jacms/Content" ignoreContextParams="true"
                                                           executeResult="true">
                                                     <s:param name="treeNodesToOpen" value="#parameters['treeNodesToOpen']" />
-                                                </s:action>
+                                                </wpsa:action>
                                                 </div>
                                             </div>
                                         </div>

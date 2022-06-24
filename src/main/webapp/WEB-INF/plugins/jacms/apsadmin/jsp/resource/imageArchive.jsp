@@ -1,8 +1,8 @@
 <%@ taglib prefix="s" uri="/struts-tags" %>
 <%@ taglib uri="/aps-core" prefix="wp" %>
-<%@ taglib uri="/apsadmin-core" prefix="wpsa" %>
 <%@ taglib prefix="jacms" uri="/jacms-apsadmin-core" %>
 <%@ taglib prefix="wpsf" uri="/apsadmin-form" %>
+<%@ taglib prefix="wpsa" uri="/apsadmin-core" %>
 
 <ol class="breadcrumb page-tabs-header breadcrumb-position">
     <li>
@@ -454,10 +454,10 @@
     </script>
     <wp:ifauthorized permission="superuser">
         <s:if test="!onEditContent">
-            <s:action name="openAdminProspect" namespace="/do/jacms/Resource/Admin" ignoreContextParams="true"
+            <wpsa:action name="openAdminProspect" namespace="/do/jacms/Resource/Admin" ignoreContextParams="true"
                       executeResult="true">
                 <s:param name="resourceTypeCode" value="resourceTypeCode"></s:param>
-            </s:action>
+            </wpsa:action>
         </s:if>
     </wp:ifauthorized>
 </div>
