@@ -13,17 +13,9 @@
  */
 package com.agiletec.plugins.jacms.aps.system.services.content.model.attribute;
 
-import com.agiletec.aps.system.common.entity.model.FieldError;
-import com.agiletec.plugins.jacms.aps.system.services.resource.IResourceManager;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jdom.Element;
-import org.entando.entando.ent.util.EntLogging.EntLogger;
-import org.entando.entando.ent.util.EntLogging.EntLogFactory;
-
 import com.agiletec.aps.system.common.entity.model.AttributeFieldError;
 import com.agiletec.aps.system.common.entity.model.AttributeTracer;
+import com.agiletec.aps.system.common.entity.model.FieldError;
 import com.agiletec.aps.system.common.entity.model.attribute.AbstractJAXBAttribute;
 import com.agiletec.aps.system.common.entity.model.attribute.TextAttribute;
 import com.agiletec.aps.system.services.lang.ILangManager;
@@ -33,13 +25,26 @@ import com.agiletec.plugins.jacms.aps.system.services.content.IContentManager;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.CmsAttributeReference;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.SymbolicLink;
+import com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.IReferenceableAttribute;
+import com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.JAXBLinkAttribute;
+import com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.JAXBLinkValue;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.util.SymbolicLinkValidator;
 import com.agiletec.plugins.jacms.aps.system.services.linkresolver.ILinkResolverManager;
+import com.agiletec.plugins.jacms.aps.system.services.resource.IResourceManager;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.entando.entando.ent.exception.EntRuntimeException;
+import org.entando.entando.ent.util.EntLogging.EntLogFactory;
+import org.entando.entando.ent.util.EntLogging.EntLogger;
+import org.jdom.Element;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.web.context.ContextLoader;
+import org.springframework.web.context.WebApplicationContext;
 
 /**
  * Rappresenta una informazione di tipo "link". La destinazione del link è la
@@ -181,7 +186,6 @@ public class LinkAttribute extends TextAttribute implements IReferenceableAttrib
         JAXBLinkValue value = new JAXBLinkValue();
         String text = this.getTextForLang(langCode);
         value.setText(text);
-        value.setUrl(this.getLinkResolverManager().resolveLink(this.getSymbolicLink(), this.getParentEntity().getId(), null));
         value.setSymbolicLink(this.getSymbolicLink());
         jaxbAttribute.setLinkValue(value);
         return jaxbAttribute;
@@ -220,14 +224,20 @@ public class LinkAttribute extends TextAttribute implements IReferenceableAttrib
     }
 
     @Override
+    @Deprecated
     public List<AttributeFieldError> validate(AttributeTracer tracer, ILangManager langManager) {
-        List<AttributeFieldError> errors = super.validate(tracer, langManager);
+        return this.validate(tracer, langManager, null);
+    }
+
+    @Override
+    public List<AttributeFieldError> validate(AttributeTracer tracer, ILangManager langManager, BeanFactory beanFactory) {
+        List<AttributeFieldError> errors = super.validate(tracer, langManager, beanFactory);
         try {
             SymbolicLink symbolicLink = this.getSymbolicLink();
             if (null == symbolicLink) {
                 return errors;
             }
-            SymbolicLinkValidator sler = new SymbolicLinkValidator(this.getContentManager(), this.getPageManager(), this.getResourceManager());
+            SymbolicLinkValidator sler = this.getSymbolicLinkValidator(beanFactory);
             AttributeFieldError attributeError = sler.scan(symbolicLink, (Content) this.getParentEntity());
             if (null != attributeError) {
                 AttributeFieldError error = new AttributeFieldError(this, attributeError.getErrorCode(), tracer);
@@ -248,6 +258,14 @@ public class LinkAttribute extends TextAttribute implements IReferenceableAttrib
             }
         }
         return errors;
+    }
+    
+    private SymbolicLinkValidator getSymbolicLinkValidator(BeanFactory beanFactory) {
+        return new SymbolicLinkValidator(
+                beanFactory == null ? this.getContentManager() : beanFactory.getBean(IContentManager.class),
+                beanFactory == null ? this.getPageManager() : beanFactory.getBean(IPageManager.class),
+                beanFactory == null ? this.getResourceManager() : beanFactory.getBean(IResourceManager.class)
+        );
     }
 
     /**
@@ -276,34 +294,42 @@ public class LinkAttribute extends TextAttribute implements IReferenceableAttrib
         this.linkProperties = linkProperties;
     }
 
+    @Deprecated
     protected IContentManager getContentManager() {
         return contentManager;
     }
 
+    @Deprecated
     public void setContentManager(IContentManager contentManager) {
         this.contentManager = contentManager;
     }
 
+    @Deprecated
     protected IPageManager getPageManager() {
         return pageManager;
     }
 
+    @Deprecated
     public void setPageManager(IPageManager pageManager) {
         this.pageManager = pageManager;
     }
 
+    @Deprecated
     protected ILinkResolverManager getLinkResolverManager() {
         return linkResolverManager;
     }
 
+    @Deprecated
     public void setLinkResolverManager(ILinkResolverManager linkResolverManager) {
         this.linkResolverManager = linkResolverManager;
     }
 
+    @Deprecated
     public IResourceManager getResourceManager() {
         return resourceManager;
     }
 
+    @Deprecated
     public void setResourceManager(IResourceManager resourceManager) {
         this.resourceManager = resourceManager;
     }
@@ -315,4 +341,18 @@ public class LinkAttribute extends TextAttribute implements IReferenceableAttrib
     private transient ILinkResolverManager linkResolverManager;
     private transient IResourceManager resourceManager;
 
+    private void readObject(java.io.ObjectInputStream in)
+            throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        WebApplicationContext ctx = ContextLoader.getCurrentWebApplicationContext();
+        if (ctx == null) {
+            logger.warn("Null WebApplicationContext during deserialization");
+            return;
+        }
+        this.contentManager = ctx.getBean(IContentManager.class);
+        this.pageManager = ctx.getBean(IPageManager.class);
+        this.linkResolverManager = ctx.getBean(ILinkResolverManager.class);
+        this.resourceManager = ctx.getBean(IResourceManager.class);
+        this.setLangManager(ctx.getBean(ILangManager.class));
+    }
 }

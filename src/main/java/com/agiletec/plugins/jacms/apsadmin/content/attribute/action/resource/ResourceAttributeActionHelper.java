@@ -38,7 +38,7 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 /**
  * Classe helper base per le action delegata alla gestione delle operazione
  * sugli attributi risorsa.
- *
+ * 
  * @author E.Santoboni
  */
 public class ResourceAttributeActionHelper {
@@ -60,7 +60,7 @@ public class ResourceAttributeActionHelper {
             session.setAttribute(ATTRIBUTE_NAME_SESSION_PARAM, action.getAttributeName());
         }
         if (action.getElementIndex() >= 0) {
-            session.setAttribute(LIST_ELEMENT_INDEX_SESSION_PARAM, new Integer(action.getElementIndex()));
+            session.setAttribute(LIST_ELEMENT_INDEX_SESSION_PARAM, action.getElementIndex());
         }
         session.setAttribute(RESOURCE_TYPE_CODE_SESSION_PARAM, action.getResourceTypeCode());
         session.setAttribute(RESOURCE_LANG_CODE_SESSION_PARAM, action.getResourceLangCode());
@@ -77,11 +77,12 @@ public class ResourceAttributeActionHelper {
     public static void joinResources(List<ResourceInterface> resources, HttpServletRequest request) {
         HttpSession session = request.getSession();
         try {
-            Content currentContent = ResourceAttributeActionHelper.getContent(request);
+            Content currentContent = getContent(request);
             String attributeName = (String) session.getAttribute(ATTRIBUTE_NAME_SESSION_PARAM);
             AttributeInterface attribute = (AttributeInterface) currentContent.getAttribute(attributeName);
             IResourceManager resourceManager = (IResourceManager) ApsWebApplicationUtils.getBean(JacmsSystemConstants.RESOURCE_MANAGER, request);
             joinResources(attribute, resources, resourceManager.getMetadataMapping(), session);
+            updateContent(currentContent, request);
         } catch (Exception e) {
             logger.error("error in joinResource", e);
             throw new RuntimeException("error in joinResource", e);
@@ -163,20 +164,32 @@ public class ResourceAttributeActionHelper {
     }
 
     public static Content getContent(HttpServletRequest request) {
-        String contentOnSessionMarker = (String) request.getAttribute("contentOnSessionMarker");
-        if (null == contentOnSessionMarker || contentOnSessionMarker.trim().length() == 0) {
-            contentOnSessionMarker = request.getParameter("contentOnSessionMarker");
-        }
+        String contentOnSessionMarker = extractContentMarker(request);
         return (Content) request.getSession()
                 .getAttribute(ContentActionConstants.SESSION_PARAM_NAME_CURRENT_CONTENT_PREXIX + contentOnSessionMarker);
     }
+	
+    protected static void updateContent(Content content, HttpServletRequest request) {
+        String contentOnSessionMarker = extractContentMarker(request);
+		request.getSession().setAttribute(ContentActionConstants.SESSION_PARAM_NAME_CURRENT_CONTENT_PREXIX + contentOnSessionMarker, content);
+    }
+    
+    protected static String extractContentMarker(HttpServletRequest request) {
+		String contentOnSessionMarker = (String) request.getAttribute("contentOnSessionMarker");
+		if (null == contentOnSessionMarker || contentOnSessionMarker.trim().length() == 0) {
+			contentOnSessionMarker = request.getParameter("contentOnSessionMarker");
+		}
+        return contentOnSessionMarker;
+    }
 
     public static void removeResource(HttpServletRequest request) {
+        Content currentContent = getContent(request);
         HttpSession session = request.getSession();
         String attributeName = (String) session.getAttribute(ATTRIBUTE_NAME_SESSION_PARAM);
-        AttributeInterface attribute = (AttributeInterface) getContent(request).getAttribute(attributeName);
+        AttributeInterface attribute = (AttributeInterface) currentContent.getAttribute(attributeName);
         removeResource(attribute, request);
         removeSessionParams(session);
+        updateContent(currentContent, request);
     }
 
     private static void removeResource(AttributeInterface attribute, HttpServletRequest request) {

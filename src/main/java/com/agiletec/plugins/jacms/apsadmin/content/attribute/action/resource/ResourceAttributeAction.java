@@ -49,11 +49,13 @@ public class ResourceAttributeAction extends BaseAction implements IResourceAttr
     @Override
     public String chooseResource() {
         try {
+            Content content = this.getContent();
             ResourceAttributeActionHelper.removeSessionParams(this.getRequest().getSession());
-            this.getContentActionHelper().updateEntity(this.getContent(), this.getRequest());
+            this.getContentActionHelper().updateEntity(content, this.getRequest());
             ResourceAttributeActionHelper.initSessionParams(this, this.getRequest());
             String resourceTypeCode = (String) this.getRequest().getSession().getAttribute(ResourceAttributeActionHelper.RESOURCE_TYPE_CODE_SESSION_PARAM);
             this.setResourceTypeCode(resourceTypeCode);
+            this.updateContent(content);
         } catch (Throwable t) {
             _logger.error("error in findResource", t);
             return FAILURE;
@@ -64,9 +66,11 @@ public class ResourceAttributeAction extends BaseAction implements IResourceAttr
     @Override
     public String removeResource() {
         try {
-            this.getContentActionHelper().updateEntity(this.getContent(), this.getRequest());
+            Content content = this.getContent();
+            this.getContentActionHelper().updateEntity(content, this.getRequest());
             ResourceAttributeActionHelper.initSessionParams(this, this.getRequest());
             ResourceAttributeActionHelper.removeResource(this.getRequest());
+            this.updateContent(content);
         } catch (Throwable t) {
             _logger.error("error in removeResource", t);
             return FAILURE;
@@ -90,6 +94,10 @@ public class ResourceAttributeAction extends BaseAction implements IResourceAttr
     public Content getContent() {
         return (Content) this.getRequest().getSession()
                 .getAttribute(ContentActionConstants.SESSION_PARAM_NAME_CURRENT_CONTENT_PREXIX + this.getContentOnSessionMarker());
+    }
+    
+    protected void updateContent(Content content) {
+		this.getRequest().getSession().setAttribute(ContentActionConstants.SESSION_PARAM_NAME_CURRENT_CONTENT_PREXIX + this.getContentOnSessionMarker(), content);
     }
 
     public String getEntryContentAnchorDestFromRemove() {

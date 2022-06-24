@@ -90,8 +90,13 @@ public abstract class AbstractContentAction extends BaseAction {
 	protected Content updateContentOnSession(boolean updateMainGroup) {
 		Content content = this.getContent();
 		this.getContentActionHelper().updateContent(content, updateMainGroup, this.getRequest());
+        this.updateContent(content);
 		return content;
 	}
+    
+    protected void updateContent(Content content) {
+		this.getRequest().getSession().setAttribute(ContentActionConstants.SESSION_PARAM_NAME_CURRENT_CONTENT_PREXIX + this.getContentOnSessionMarker(), content);
+    }
 	
 	/**
 	 * Restituisce la lista di contenuti (in forma small) definiti nel sistema.

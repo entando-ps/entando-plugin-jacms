@@ -23,7 +23,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
 import org.entando.entando.aps.servlet.IProtectedResourceProvider;
 import org.entando.entando.ent.util.EntLogging.EntLogger;
 import org.entando.entando.ent.util.EntLogging.EntLogFactory;
@@ -80,9 +79,6 @@ public class ProtectedResourceProvider implements IProtectedResourceProvider {
                 indexGuardian = 2;
             }
             String resId = uriSegments[segments - 3 - indexGuardian];
-            if (!StringUtils.isNumeric(resId)) {
-                return false;
-            }
             UserDetails currentUser = (UserDetails) request.getSession().getAttribute(SystemConstants.SESSIONPARAM_CURRENT_USER);
             if (currentUser == null) {
                 currentUser = this.getUserManager().getGuestUser();
