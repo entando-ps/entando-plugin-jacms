@@ -132,7 +132,7 @@
                 </label>
             </div>
             <div class="col-xs-10">
-                <script src="<wp:ResourceURL ignoreTenant="true" />administration/js/entando-typeahead-tree.js"></script>
+                <script src="<wp:resourceURL ignoreTenant="true" />administration/js/entando-typeahead-tree.js"></script>
                 <%--<s:include value="/WEB-INF/apsadmin/jsp/common/layouts/assets-more/category/categoryTree-extra.jsp"/>--%>
 
                 <s:set var="useAjax" value="true"/>
