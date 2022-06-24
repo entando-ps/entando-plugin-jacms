@@ -2,6 +2,7 @@
 <%@ taglib prefix="s" uri="/struts-tags" %>
 <%@ taglib prefix="wp" uri="/aps-core" %>
 <%@ taglib prefix="wpsf" uri="/apsadmin-form" %>
+<%@ taglib prefix="wpsa" uri="/apsadmin-core" %>
 
 <!-- Admin console Breadcrumbs -->
 <ol class="breadcrumb page-tabs-header breadcrumb-position">
@@ -36,10 +37,10 @@
 
     <!-- Info Details  -->
     <div class="button-bar mt-20">
-        <s:action namespace="/do/Page" name="printPageDetails"
+        <wpsa:action namespace="/do/Page" name="printPageDetails"
                   executeResult="true" ignoreContextParams="true">
             <s:param name="selectedNode" value="currentPage.code"></s:param>
-        </s:action>
+        </wpsa:action>
     </div>
 
     <!-- Form -->

@@ -1,5 +1,6 @@
 <%@ taglib prefix="s" uri="/struts-tags" %>
 <%@ taglib prefix="wpsf" uri="/apsadmin-form" %>
+<%@ taglib prefix="wpsa" uri="/apsadmin-core" %>
 
 <ol class="breadcrumb page-tabs-header breadcrumb-position">
     <li>
@@ -31,7 +32,7 @@
 <div id="main" role="main">
     <s:set var="breadcrumbs_pivotPageCode" value="pageCode" />
     <s:include value="/WEB-INF/apsadmin/jsp/portal/include/pageInfo_breadcrumbs.jsp" />
-    <s:action namespace="/do/Page" name="printPageDetails" executeResult="true" ignoreContextParams="true"><s:param name="selectedNode" value="pageCode"></s:param></s:action>
+    <wpsa:action namespace="/do/Page" name="printPageDetails" executeResult="true" ignoreContextParams="true"><s:param name="selectedNode" value="pageCode"></s:param></wpsa:action>
     <s:form namespace="/do/jacms/Page/SpecialWidget/ListViewer" cssClass="form-horizontal">
         <div class="panel panel-default">
             <div class="panel-heading">

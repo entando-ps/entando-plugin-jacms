@@ -161,9 +161,9 @@
         <div class="form-group">
             <label class="col-sm-2 control-label"><s:text name="label.categories"/></label>
             <div class="col-sm-10">
-                <s:action name="showCategoryBlockOnEntryContent" namespace="/do/jacms/Content" executeResult="true">
+                <wpsa:action name="showCategoryBlockOnEntryContent" namespace="/do/jacms/Content" executeResult="true">
                     <s:param name="contentOnSessionMarker" value="contentOnSessionMarker" />
-                </s:action>
+                </wpsa:action>
             </div>
         </div>
 
