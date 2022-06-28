@@ -5,8 +5,8 @@
 <%@ taglib prefix="wpsa" uri="/apsadmin-core" %>
 <%@ taglib prefix="wpsf" uri="/apsadmin-form" %>
 
-<script type="text/javascript" src="<wp:resourceURL />administration/js/ckeditor/ckeditor.js"></script>
-<script type="text/javascript" src="<wp:resourceURL />administration/js/ckeditor/adapters/jquery.js"></script>
+<script type="text/javascript" src="<wp:resourceURL ignoreTenant="true" />administration/js/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="<wp:resourceURL ignoreTenant="true" />administration/js/ckeditor/adapters/jquery.js"></script>
 
 <ol class="breadcrumb page-tabs-header breadcrumb-position">
     <li><s:text name="breadcrumb.app" /></li>

@@ -3,7 +3,7 @@
 <%@ taglib uri="/apsadmin-core" prefix="wpsa" %>
 
 <s:set var="categoryTreeStyleVar" ><wp:info key="systemParam" paramName="treeStyle_category" /></s:set>
-<script src="<wp:resourceURL />administration/js/jquery.entando.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/jquery.entando.js"></script>
 
 <script type="text/javascript">
     $(document).ready(function () {

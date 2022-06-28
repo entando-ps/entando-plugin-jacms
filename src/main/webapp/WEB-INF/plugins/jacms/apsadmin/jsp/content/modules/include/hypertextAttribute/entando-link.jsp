@@ -13,34 +13,34 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta charset="utf-8" />
 
-		<link rel="stylesheet" href="<wp:resourceURL />administration/css/entando-admin-console-default-theme.css" media="screen" />
-		<link rel="stylesheet" href="<wp:resourceURL />administration/bootstrap/css/bootstrap.min.css" media="screen">
-		<link rel="stylesheet" href="<wp:resourceURL />administration/patternfly/css/patternfly.min.css">
-		<link rel="stylesheet" href="<wp:resourceURL />administration/patternfly/css/patternfly-additions.min.css">
-		<link rel="stylesheet" href="<wp:resourceURL />administration/css/entando-admin-console-default-theme.css">
-		<link rel="stylesheet" type="text/css" href="<wp:resourceURL />administration/css/pages/settingsPage.css">
-		<link rel="stylesheet" type="text/css" href="<wp:resourceURL />administration/css/jquery-ui.css">
+		<link rel="stylesheet" href="<wp:resourceURL ignoreTenant="true" />administration/css/entando-admin-console-default-theme.css" media="screen" />
+		<link rel="stylesheet" href="<wp:resourceURL ignoreTenant="true" />administration/bootstrap/css/bootstrap.min.css" media="screen">
+		<link rel="stylesheet" href="<wp:resourceURL ignoreTenant="true" />administration/patternfly/css/patternfly.min.css">
+		<link rel="stylesheet" href="<wp:resourceURL ignoreTenant="true" />administration/patternfly/css/patternfly-additions.min.css">
+		<link rel="stylesheet" href="<wp:resourceURL ignoreTenant="true" />administration/css/entando-admin-console-default-theme.css">
+		<link rel="stylesheet" type="text/css" href="<wp:resourceURL ignoreTenant="true" />administration/css/pages/settingsPage.css">
+		<link rel="stylesheet" type="text/css" href="<wp:resourceURL ignoreTenant="true" />administration/css/jquery-ui.css">
 
 
 		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
 		<!--[if lt IE 9]>
-			<script src="<wp:resourceURL />administration/js/html5shiv.js"></script>
-			<script src="<wp:resourceURL />administration/js/respond.min.js"></script>
+			<script src="<wp:resourceURL ignoreTenant="true" />administration/js/html5shiv.js"></script>
+			<script src="<wp:resourceURL ignoreTenant="true" />administration/js/respond.min.js"></script>
 		<![endif]-->
 
 		<!--JS inclusions-->
-                <script src="<wp:resourceURL />administration/js/jquery-3.4.1.min.js"></script>
-		<script src="<wp:resourceURL />administration/js/jquery-migrate-3.0.1.min.js"></script>
-		<script src="<wp:resourceURL />administration/patternfly/js/patternfly.js"></script>
-		<script src="<wp:resourceURL />administration/js/pages/settingsPage.js"></script>
-		<script src="<wp:resourceURL />administration/bootstrap/js/bootstrap.min.js"></script>
-		<script src="<wp:resourceURL />administration/js/bootstrap-switch.min.js"></script>
-		<script src="<wp:resourceURL />administration/js/bootstrap-offcanvas.js"></script>
-        <script src="<wp:resourceURL />administration/js/jquery-ui.js"></script>
+                <script src="<wp:resourceURL ignoreTenant="true" />administration/js/jquery-3.4.1.min.js"></script>
+		<script src="<wp:resourceURL ignoreTenant="true" />administration/js/jquery-migrate-3.0.1.min.js"></script>
+		<script src="<wp:resourceURL ignoreTenant="true" />administration/patternfly/js/patternfly.js"></script>
+		<script src="<wp:resourceURL ignoreTenant="true" />administration/js/pages/settingsPage.js"></script>
+		<script src="<wp:resourceURL ignoreTenant="true" />administration/bootstrap/js/bootstrap.min.js"></script>
+		<script src="<wp:resourceURL ignoreTenant="true" />administration/js/bootstrap-switch.min.js"></script>
+		<script src="<wp:resourceURL ignoreTenant="true" />administration/js/bootstrap-offcanvas.js"></script>
+        <script src="<wp:resourceURL ignoreTenant="true" />administration/js/jquery-ui.js"></script>
 		<s:include value="/WEB-INF/apsadmin/jsp/common/layouts/assets-common.jsp" />
 
 		<%-- entando-link stuff --%>
-		<script type="text/javascript" src="<wp:resourceURL />administration/js/ckeditor/ckeditor.js"></script>
+		<script type="text/javascript" src="<wp:resourceURL ignoreTenant="true" />administration/js/ckeditor/ckeditor.js"></script>
 		<s:include value="/WEB-INF/apsadmin/jsp/common/layouts/assets-more/inc/snippet-pageTree.jsp" />
         <%-- form extras --%>
 		<script type="text/javascript">

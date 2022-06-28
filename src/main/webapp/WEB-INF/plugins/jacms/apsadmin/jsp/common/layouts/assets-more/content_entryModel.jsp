@@ -10,17 +10,17 @@
         "#set ($<VAR> = <VALUE>)":null
     };
 </script>
-<link rel="stylesheet" href="<wp:resourceURL />administration/js/codemirror/lib/codemirror.css">
-<link rel="stylesheet" href="<wp:resourceURL />administration/js/codemirror/theme/eclipse.css">
-<link rel="stylesheet" href="<wp:resourceURL />administration/js/codemirror/addon/hint/show-hint.css">
+<link rel="stylesheet" href="<wp:resourceURL ignoreTenant="true" />administration/js/codemirror/lib/codemirror.css">
+<link rel="stylesheet" href="<wp:resourceURL ignoreTenant="true" />administration/js/codemirror/theme/eclipse.css">
+<link rel="stylesheet" href="<wp:resourceURL ignoreTenant="true" />administration/js/codemirror/addon/hint/show-hint.css">
 <%--
-<script src="<wp:resourceURL />administration/js/codemirror/lib/codemirror.js"></script>
-<script src="<wp:resourceURL />administration/js/codemirror/mode/velocity/velocity.js"></script>
-<script src="<wp:resourceURL />administration/js/codemirror/addon/hint/show-hint.js"></script>
-<script src="<wp:resourceURL />administration/js/codemirror/addon/hint/entando-hint.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/codemirror/lib/codemirror.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/codemirror/mode/velocity/velocity.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/codemirror/addon/hint/show-hint.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/codemirror/addon/hint/entando-hint.js"></script>
 --%>
-<script src="<wp:resourceURL />administration/js/codemirror/lib/codemirror-compressed.js"></script>
-<script src="<wp:resourceURL />administration/js/codemirror/addon/hint/entando-hint-compressed.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/codemirror/lib/codemirror-compressed.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/codemirror/addon/hint/entando-hint-compressed.js"></script>
 <script type="text/javascript">
     CodeMirror.commands.autocomplete = function (cm) {
         CodeMirror.showHint(cm);

@@ -1,13 +1,13 @@
 <%@ taglib prefix="s" uri="/struts-tags" %>
 <%@ taglib prefix="wp" uri="/aps-core" %>
 
-<script src="<wp:resourceURL />administration/js/jquery.sticky.js"></script>
-<script src="<wp:resourceURL />administration/js/data-tables/jquery.dataTables.min.js"></script>
-<script src="<wp:resourceURL />administration/js/data-tables/dataTables.fixedColumns.min.js"></script>
-<script src="<wp:resourceURL />administration/js/data-tables/dataTables.colVis.min.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/jquery.sticky.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/data-tables/jquery.dataTables.min.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/data-tables/dataTables.fixedColumns.min.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/data-tables/dataTables.colVis.min.js"></script>
 
 <s:if test="strutsAction != 2" >
-    <script src="<wp:resourceURL />administration/js/generate-code-from-title.js"></script>
+    <script src="<wp:resourceURL ignoreTenant="true" />administration/js/generate-code-from-title.js"></script>
 </s:if>
 
 <script type="text/javascript">

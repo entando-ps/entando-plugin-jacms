@@ -1,16 +1,16 @@
 <%@ taglib prefix="s" uri="/struts-tags" %>
 <%@ taglib prefix="wp" uri="/aps-core" %>
 
-<link rel="stylesheet" type="text/css" href="<wp:resourceURL />administration/css/bootstrap.vertical-tabs.min.css"/>
-<link rel="stylesheet" type="text/css" href="<wp:resourceURL />administration/cropper-js/cropper.min.css"/>
-<link rel="stylesheet" type="text/css" href="<wp:resourceURL />administration/crop-editor/crop-editor.css"/>
+<link rel="stylesheet" type="text/css" href="<wp:resourceURL ignoreTenant="true" />administration/css/bootstrap.vertical-tabs.min.css"/>
+<link rel="stylesheet" type="text/css" href="<wp:resourceURL ignoreTenant="true" />administration/cropper-js/cropper.min.css"/>
+<link rel="stylesheet" type="text/css" href="<wp:resourceURL ignoreTenant="true" />administration/crop-editor/crop-editor.css"/>
 
-<script src="<wp:resourceURL />administration/js/jquery.sticky.js"></script>
-<script src="<wp:resourceURL />administration/js/data-tables/jquery.dataTables.min.js"></script>
-<script src="<wp:resourceURL />administration/js/data-tables/dataTables.fixedColumns.min.js"></script>
-<script src="<wp:resourceURL />administration/js/data-tables/dataTables.colVis.min.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/jquery.sticky.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/data-tables/jquery.dataTables.min.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/data-tables/dataTables.fixedColumns.min.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/data-tables/dataTables.colVis.min.js"></script>
 
-<script src="<wp:resourceURL />administration/js/generate-code-from-title.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/generate-code-from-title.js"></script>
 
 <script type="text/javascript">
     $(document).ready(function () {
@@ -38,5 +38,5 @@
     });
 </script>
 
-<script src="<wp:resourceURL />administration/file-uploader/file-uploader.js"></script>
-<script src="<wp:resourceURL />administration/cropper-js/cropper.min.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/file-uploader/file-uploader.js"></script>
+<script src="<wp:resourceURL ignoreTenant="true" />administration/cropper-js/cropper.min.js"></script>

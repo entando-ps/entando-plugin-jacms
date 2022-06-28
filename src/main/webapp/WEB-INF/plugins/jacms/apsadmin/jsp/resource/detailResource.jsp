@@ -185,7 +185,7 @@
                 </label>
             </div>
             <div class="col-xs-10">
-                <script src="<wp:resourceURL />administration/js/entando-typeahead-tree.js"></script>
+                <script src="<wp:resourceURL ignoreTenant="true" />administration/js/entando-typeahead-tree.js"></script>
                 <s:include value="/WEB-INF/apsadmin/jsp/common/layouts/assets-more/category/categoryTree-extra.jsp" />
                 <table id="categoryTree" class="table table-bordered table-hover table-treegrid ${categoryTreeStyleVar}">
                     <thead>
