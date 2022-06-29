@@ -94,7 +94,7 @@
                     <s:set var="canEditCurrentContent" value="%{false}" />
                     <c:set var="currentContentGroup"><s:property value="#content.mainGroupCode" escapeHtml="false"/></c:set>
 
-                    <wpsa:ifauthorized groupName="${currentContentGroup}" permission="editContents"><s:set var="canEditCurrentContent" value="%{true}" /></wpsa:ifauthorized>
+                    <wp:ifauthorized groupName="${currentContentGroup}" permission="editContents"><s:set var="canEditCurrentContent" value="%{true}" /></wp:ifauthorized>
 
                         <!-- Edit/Change content -->
                         <fieldset class="col-xs-12 no-padding">
