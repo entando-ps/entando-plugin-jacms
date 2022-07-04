@@ -13,6 +13,7 @@
  */
 package com.agiletec.plugins.jacms.aps.system.services.resource;
 
+import com.agiletec.aps.system.EntThread;
 import java.util.List;
 
 import org.entando.entando.ent.util.EntLogging.EntLogger;
@@ -24,11 +25,12 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
  * and the refreshing of resource instances.
  * @author E.Santoboni
  */
-public class ResourceReloaderThread extends Thread {
+public class ResourceReloaderThread extends EntThread {
 
 	private static final EntLogger _logger = EntLogFactory.getSanitizedLogger(ResourceReloaderThread.class);
 	
 	public ResourceReloaderThread(ResourceManager resourceManager, int operationCode, List<String> resources) {
+        super();
 		this._resourceManager = resourceManager;
 		this.setOperationCode(operationCode);
 		this.setResources(resources);
@@ -36,6 +38,7 @@ public class ResourceReloaderThread extends Thread {
 	
 	@Override
 	public void run() {
+        super.applyLocalMap();
 		if (null == this.getResources()) return;
 		if (this.getOperationCode() == RELOAD_MASTER_FILE_NAME) {
 			this._resourceManager.setStatus(IResourceManager.STATUS_RELOADING_RESOURCE_MAIN_FILENAME_IN_PROGRESS);

@@ -13,6 +13,7 @@
  */
 package com.agiletec.plugins.jacms.aps.system.services.contentpagemapper;
 
+import com.agiletec.aps.system.EntThreadLocal;
 import com.agiletec.aps.system.common.AbstractCacheWrapper;
 import org.entando.entando.ent.util.EntLogging.EntLogger;
 import org.entando.entando.ent.util.EntLogging.EntLogFactory;
@@ -24,6 +25,7 @@ import com.agiletec.aps.system.services.page.events.PageChangedEvent;
 import com.agiletec.aps.system.services.page.events.PageChangedObserver;
 import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
 import com.agiletec.plugins.jacms.aps.system.services.contentpagemapper.cache.IContentMapperCacheWrapper;
+import org.entando.entando.aps.system.services.tenant.ITenantManager;
 
 /**
  * Servizio gestore della mappa dei contenuti pubblicati nelle pagine. Il
@@ -69,6 +71,7 @@ public class ContentPageMapperManager extends AbstractService implements IConten
 
 	@Override
 	public void updateFromPageChanged(PageChangedEvent event) {
+        _logger.error("END - EVENT -> " + event.getClass() + " - tenant " + EntThreadLocal.get(ITenantManager.THREAD_LOCAL_TENANT_CODE));
 		try {
 			this.reloadContentPageMapper();
 			String pagecode = (null != event.getPage()) ? event.getPage().getCode() : "*undefined*";
