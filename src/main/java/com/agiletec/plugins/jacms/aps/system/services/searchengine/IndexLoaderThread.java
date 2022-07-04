@@ -13,6 +13,7 @@
  */
 package com.agiletec.plugins.jacms.aps.system.services.searchengine;
 
+import com.agiletec.aps.system.EntThread;
 import java.util.Date;
 import java.util.List;
 
@@ -26,12 +27,13 @@ import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
  * Thread Class delegate to load content index, in use on SearchEngine.
  * @author E.Santoboni
  */
-public class IndexLoaderThread extends Thread {
+public class IndexLoaderThread extends EntThread {
 
 	private static final EntLogger _logger = EntLogFactory.getSanitizedLogger(IndexLoaderThread.class);
 	
 	public IndexLoaderThread(SearchEngineManager searchEngineManager, 
 			IContentManager contentManager, IIndexerDAO indexerDao) {
+        super();
 		this._contentManager = contentManager;
 		this._searchEngineManager = searchEngineManager;
 		this._indexerDao = indexerDao;
@@ -39,6 +41,7 @@ public class IndexLoaderThread extends Thread {
 	
 	@Override
 	public void run() {
+        super.applyLocalMap();
 		LastReloadInfo reloadInfo = new LastReloadInfo();
 		try {
 			this.loadNewIndex();
