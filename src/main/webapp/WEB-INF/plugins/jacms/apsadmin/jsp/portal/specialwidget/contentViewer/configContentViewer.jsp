@@ -81,13 +81,6 @@
                     </div>
                 </s:if>
 
-                <s:set var="showletParams" value="showlet.type.parameter" />
-
-                <%--
-                <s:property value="#showletParams['contentId'].descr" />
-                <h4><s:text name="title.configContentViewer.settings" /></h4>
-                --%>
-
                 <!-- Configure content -->
                 <s:if test="showlet.config['contentId'] != null">
                     <s:set var="content" value="%{getContentVo(showlet.config['contentId'])}"></s:set>
@@ -153,24 +146,6 @@
                             </div>
                         </div>
                     </fieldset>
-
-                    <%--
-                            Uncomment this if you add some custom parameters to this Widget
-
-                    <s:set var="showletTypeParameters" value="showlet.type.typeParameters"></s:set>
-                    <s:if test="#showletTypeParameters.size()>2">
-                    <fieldset class="col-xs-12 margin-large-top"><legend><s:text name="label.otherSettings" /></legend>
-                            <s:iterator value="#showletTypeParameters" var="showletParam" >
-                                    <s:if test="!#showletParam.name.equals('contentId') && !#showletParam.name.equals('modelId')">
-                                            <div class="form-group">
-                                                    <label for="fagianoParam_<s:property value="#showletParam.name" />" class="control-label"><s:property value="#showletParam.descr" /></label>
-                                                    <wpsf:textfield cssClass="form-control" id="%{'fagianoParam_'+#showletParam.name}" name="%{#showletParam.name}" value="%{showlet.config[#showletParam.name]}" />
-                                            </div>
-                                    </s:if>
-                            </s:iterator>
-                    </fieldset>
-                    </s:if>
-                    --%>
 
                 </s:if>
 

@@ -366,7 +366,8 @@
                     </fieldset>
 
                     <%-- Extra Options --%>
-                    <s:if test="%{widget.type.hasParameter('title_%') || widget.type.hasParameter('pageLink') || widget.type.hasParameter('linkDescr_%')}" >
+                    <s:set var="widgetTypeVar" value="%{getWidgetType(widget.typeCode)}" />
+                    <s:if test="%{#widgetTypeVar.hasParameter('title_%') || #widgetTypeVar.hasParameter('pageLink') || #widgetTypeVar.hasParameter('linkDescr_%')}" >
                         <fieldset class="col-xs-12 no-padding">
                             <legend data-toggle="collapse" data-target="#options-extra">
                                 <s:text name="title.extraOption" />&#32;
@@ -378,7 +379,7 @@
                                     <s:text name="note.extraOption.intro" />
                                 </div>
 
-                                <s:if test="%{widget.type.hasParameter('title_%')}" >
+                                <s:if test="%{#widgetTypeVar.hasParameter('title_%')}" >
                                     <s:iterator var="lang" value="langs">
                                         <div class="form-group">
                                             <label for="title_<s:property value="#lang.code" />"
@@ -394,7 +395,7 @@
                                         </div>
                                     </s:iterator>
                                 </s:if>
-                                <s:if test="%{widget.type.hasParameter('pageLink')}" >
+                                <s:if test="%{#widgetTypeVar.hasParameter('pageLink')}" >
                                     <div class="form-group">
                                         <label for="pageLink" class="col-sm-2 control-label">
                                             <s:text name="label.page" />
@@ -410,7 +411,7 @@
                                         </div>
                                     </div>
                                 </s:if>
-                                <s:if test="%{widget.type.hasParameter('linkDescr_%')}" >
+                                <s:if test="%{#widgetTypeVar.hasParameter('linkDescr_%')}" >
                                     <s:iterator var="lang" value="langs">
                                         <div class="form-group">
                                             <label for="linkDescr_<s:property value="#lang.code" />"
@@ -429,7 +430,7 @@
                     </s:if>
 
                     <!-- Frontend filters  -->
-                    <s:if test="%{widget.type.hasParameter('userFilters')}" >
+                    <s:if test="%{#widgetTypeVar.hasParameter('userFilters')}" >
                         <fieldset class="col-xs-12 no-padding">
                             <legend data-toggle="collapse" data-target="#filters-frontend">
                                 <s:text name="title.filters.search" />&#32;
