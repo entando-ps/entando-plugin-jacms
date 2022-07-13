@@ -13,13 +13,14 @@
  */
 package com.agiletec.plugins.jacms.aps.system.services.searchengine;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Informazioni sull'ultimo ricaricamento indici effettuato.
  * @author E.Santoboni
  */
-public class LastReloadInfo {
+public class LastReloadInfo implements Serializable {
 	
 	/**
 	 * Restituisce la data dell'ultimo ricaricamento indici effettuata.

@@ -121,10 +121,11 @@
                             )
                         </p>
                     </s:else>
-                    <s:if test="lastReloadInfo != null">
+                    <s:set value="lastReloadInfo" var="lastReloadInfoVar" />
+                    <s:if test="%{#lastReloadInfoVar != null}">
                         <p class="text-info">
-                            <s:text name="note.reload.contentIndexes.lastOn.intro" />&#32;<span class="important"><s:date name="lastReloadInfo.date" format="dd/MM/yyyy HH:mm" /></span>,
-                            <s:if test="lastReloadInfo.result == 0">
+                            <s:text name="note.reload.contentIndexes.lastOn.intro" />&#32;<span class="important"><s:date name="#lastReloadInfoVar.date" format="dd/MM/yyyy HH:mm" /></span>,
+                            <s:if test="%{#lastReloadInfoVar.result == 0}">
                                 <span class="text-error"><s:text name="note.reload.contentIndexes.lastOn.ko" /></span>.
                             </s:if>
                             <s:else>
