@@ -56,7 +56,7 @@ class AdvContentSearchTest extends BaseTestCase {
     private List<String> allowedGroup = new ArrayList<>();
     
     @BeforeAll
-    public static void setUpExtended() throws Exception {
+    public static void setUp() throws Exception {
         BaseTestCase.setUp();
         ApplicationContext context = BaseTestCase.getApplicationContext();
         ICmsSearchEngineManager extractedService = context.getBean(ICmsSearchEngineManager.class);
@@ -65,7 +65,7 @@ class AdvContentSearchTest extends BaseTestCase {
     }
     
     @AfterAll
-    public static void tearDownExtended() throws Exception {
+    public static void tearDown() throws Exception {
         BaseTestCase.tearDown();
     }
 

@@ -73,8 +73,6 @@ public class ContentManager extends ApsEntityManager
     
     private ICacheInfoManager cacheInfoManager;
 
-    private ICacheInfoManager cacheInfoManager;
-
     @Override
     protected String getConfigItemName() {
         return JacmsSystemConstants.CONFIG_ITEM_CONTENT_TYPES;
@@ -457,12 +455,12 @@ public class ContentManager extends ApsEntityManager
         Content type = null;
         try {
             String cacheKey = CONTENT_TYPE_CACHE_PREFIX + typeCode;
-            type = (Content) ((CacheInfoManager) this.getCacheInfoManager()).getFromCache(ICacheInfoManager.DEFAULT_CACHE_NAME, cacheKey);
+            type = (Content) this.getCacheInfoManager().getFromCache(ICacheInfoManager.DEFAULT_CACHE_NAME, cacheKey);
             if (null == type) {
                 type = (Content) super.getEntityPrototype(typeCode);
                 if (null != type) {
                     String typeGroupKey = JacmsSystemConstants.CONTENT_TYPE_CACHE_GROUP_PREFIX + typeCode;
-                    ((CacheInfoManager) this.getCacheInfoManager()).putInCache(ICacheInfoManager.DEFAULT_CACHE_NAME, cacheKey, type, new String[]{typeGroupKey});
+                    this.getCacheInfoManager().putInCache(ICacheInfoManager.DEFAULT_CACHE_NAME, cacheKey, type, new String[]{typeGroupKey});
                 }
             }
             if (null != type) {
