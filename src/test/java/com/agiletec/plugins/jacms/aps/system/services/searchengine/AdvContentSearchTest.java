@@ -56,7 +56,7 @@ class AdvContentSearchTest extends BaseTestCase {
     private List<String> allowedGroup = new ArrayList<>();
     
     @BeforeAll
-    public static void setUpExtended() throws Exception {
+    public static void setUp() throws Exception {
         BaseTestCase.setUp();
         ApplicationContext context = BaseTestCase.getApplicationContext();
         ICmsSearchEngineManager extractedService = context.getBean(ICmsSearchEngineManager.class);
@@ -65,14 +65,14 @@ class AdvContentSearchTest extends BaseTestCase {
     }
     
     @AfterAll
-    public static void tearDownExtended() throws Exception {
+    public static void tearDown() throws Exception {
         BaseTestCase.tearDown();
     }
 
     @BeforeEach
     protected void init() throws Exception {
         try {
-            this.contentManager = (IContentManager) this.getService(JacmsSystemConstants.CONTENT_MANAGER);
+            this.contentManager = (IContentManager) BaseTestCase.getService(JacmsSystemConstants.CONTENT_MANAGER);
             this.searchEngineManager = (ICmsSearchEngineManager) this.getService(JacmsSystemConstants.SEARCH_ENGINE_MANAGER);
             this.categoryManager = (ICategoryManager) this.getService(SystemConstants.CATEGORY_MANAGER);
             allowedGroup.add(Group.ADMINS_GROUP_NAME);
