@@ -16,7 +16,6 @@ package com.agiletec.plugins.jacms.aps.system.services.content.widget;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.entando.entando.aps.system.services.widgettype.IWidgetTypeManager;
-import org.entando.entando.aps.system.services.widgettype.WidgetType;
 
 import com.agiletec.aps.BaseTestCase;
 import com.agiletec.aps.system.RequestContext;
@@ -217,8 +216,7 @@ class ContentViewerHelperIntegrationTest extends BaseTestCase {
         Widget widget = new Widget();
         IWidgetTypeManager widgetTypeManager
                 = (IWidgetTypeManager) this.getService(SystemConstants.WIDGET_TYPE_MANAGER);
-        WidgetType widgetType = widgetTypeManager.getWidgetType("content_viewer");
-        widget.setType(widgetType);
+        widget.setTypeCode("content_viewer");
         ApsProperties properties = new ApsProperties();
         if (null != contentId) {
             properties.setProperty("contentId", contentId);

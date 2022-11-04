@@ -15,15 +15,14 @@ package com.agiletec.plugins.jacms.aps.system.services.contentpagemapper;
 
 import com.agiletec.aps.system.services.page.IPageManager;
 import com.agiletec.aps.system.services.page.events.PageChangedEvent;
+import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
 import com.agiletec.plugins.jacms.aps.system.services.contentpagemapper.cache.ContentMapperCacheWrapper;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
@@ -36,26 +35,24 @@ class ContentPageMapperManagerTest {
 	private IPageManager pageManager;
 
 	@Mock
+	private IPageModelManager pageModelManager;
+
+	@Mock
 	private ContentMapperCacheWrapper cacheWrapper;
 
 	@InjectMocks
 	private ContentPageMapperManager pageMapperManager;
-
-	@BeforeEach
-	public void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
-	}
-
+    
 	@Test
 	void testInit() throws Throwable {
 		pageMapperManager.init();
-		Mockito.verify(cacheWrapper, Mockito.times(1)).initCache(pageManager);
+		Mockito.verify(cacheWrapper, Mockito.times(1)).initCache(pageManager, this.pageModelManager);
 	}
 
 	@Test
 	void testReload() throws Throwable {
 		pageMapperManager.reloadContentPageMapper();
-		Mockito.verify(cacheWrapper, Mockito.times(1)).initCache(pageManager);
+		Mockito.verify(cacheWrapper, Mockito.times(1)).initCache(pageManager, this.pageModelManager);
 	}
 
 	@Test
@@ -68,8 +65,8 @@ class ContentPageMapperManagerTest {
 
 	@Test
 	void testUpdate() throws Throwable {
-		pageMapperManager.updateFromPageChanged(Mockito.any(PageChangedEvent.class));
-		Mockito.verify(cacheWrapper, Mockito.times(1)).initCache(pageManager);
+		pageMapperManager.updateFromPageChanged(new PageChangedEvent());
+		Mockito.verify(cacheWrapper, Mockito.times(1)).initCache(pageManager, this.pageModelManager);
 	}
 
 }

@@ -371,9 +371,8 @@ class ContentListHelperIntegrationTest extends BaseTestCase {
     }
 
     private Widget getWidgetForTest(String widgetTypeCode, ApsProperties config) throws Throwable {
-        WidgetType type = this.widgetTypeManager.getWidgetType(widgetTypeCode);
         Widget widget = new Widget();
-        widget.setType(type);
+        widget.setTypeCode(widgetTypeCode);
         if (null != config) {
             widget.setConfig(config);
         }

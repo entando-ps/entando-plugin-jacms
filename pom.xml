@@ -137,6 +137,11 @@
             <groupId>org.owasp.encoder</groupId>
             <artifactId>encoder-jsp</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.owasp.encoder</groupId>
+            <artifactId>encoder-jsp</artifactId>
+            <version>${encoder.version}</version>
+        </dependency>
         <!-- -->
         <dependency>
             <groupId>org.apache.tika</groupId>
@@ -153,6 +158,10 @@
                 <exclusion>
                     <groupId>org.jsoup</groupId>
                     <artifactId>jsoup</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.quartz-scheduler</groupId>
+                    <artifactId>quartz</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

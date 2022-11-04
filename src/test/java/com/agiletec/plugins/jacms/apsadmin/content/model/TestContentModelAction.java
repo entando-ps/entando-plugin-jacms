@@ -24,6 +24,8 @@ import com.agiletec.aps.system.services.page.IPageManager;
 import com.agiletec.aps.system.services.page.Page;
 import com.agiletec.aps.system.services.page.PageMetadata;
 import com.agiletec.aps.system.services.page.Widget;
+import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
+import com.agiletec.aps.system.services.pagemodel.PageModel;
 import com.agiletec.aps.util.ApsProperties;
 import java.util.List;
 import java.util.Map;
@@ -318,14 +320,6 @@ class TestContentModelAction extends ApsAdminBaseTestCase {
         this._contentModelManager.addContentModel(model);
     }
 
-    @BeforeEach
-    private void init() throws Exception {
-        this._widgetTypeManager = (IWidgetTypeManager) this.getService(SystemConstants.WIDGET_TYPE_MANAGER);
-        this._pageManager = (IPageManager) this.getService(SystemConstants.PAGE_MANAGER);
-        this._contentModelManager = (IContentModelManager) this.getService(JacmsSystemConstants.CONTENT_MODEL_MANAGER);
-        this.addReferencingPage();
-    }
-
     /**
      * Sets up a page referencing some content models.
      */
@@ -342,10 +336,11 @@ class TestContentModelAction extends ApsAdminBaseTestCase {
         PageMetadata pageMetadata = new PageMetadata();
         pageMetadata.setGroup(root.getGroup());
         pageMetadata.setMimeType("text/html");
-        pageMetadata.setModel(root.getModel());
+        pageMetadata.setModelCode(root.getModelCode());
         pageMetadata.setTitles(page.getTitles());
         page.setMetadata(pageMetadata);
-        page.setWidgets(new Widget[root.getModel().getFrames().length]);
+        PageModel pageModel = this.pageModelManager.getPageModel(root.getModelCode());
+        page.setWidgets(new Widget[pageModel.getFrames().length]);
 
         this._pageManager.addPage(page);
 
@@ -356,8 +351,7 @@ class TestContentModelAction extends ApsAdminBaseTestCase {
 
     private Widget getSingleContentWidget() {
         Widget widget = new Widget();
-        WidgetType widgetType = this._widgetTypeManager.getWidgetType("content_viewer");
-        widget.setType(widgetType);
+        widget.setTypeCode("content_viewer");
         ApsProperties widgetConfig = new ApsProperties();
         widgetConfig.put("contentId", "ART1");
         widgetConfig.put("modelId", "2");
@@ -367,8 +361,7 @@ class TestContentModelAction extends ApsAdminBaseTestCase {
     
     private Widget getMultipleContentWidget() {
         Widget widget = new Widget();
-        WidgetType widgetType = this._widgetTypeManager.getWidgetType("row_content_viewer_list");
-        widget.setType(widgetType);
+        widget.setTypeCode("row_content_viewer_list");
         ApsProperties widgetConfig = new ApsProperties();
         widgetConfig.put("contents", "[{contentId=ART1,modelId=2},{modelId=2,contentId=ART187}]");
         widgetConfig.put("modelId", "2");
@@ -378,14 +371,22 @@ class TestContentModelAction extends ApsAdminBaseTestCase {
     
     private Widget getListOfContentsWidget() {
         Widget widget = new Widget();
-        WidgetType widgetType = this._widgetTypeManager.getWidgetType("content_viewer_list");
-        widget.setType(widgetType);
+        widget.setTypeCode("content_viewer_list");
         ApsProperties widgetConfig = new ApsProperties();
         widgetConfig.put("maxElemForItem", "5");
         widgetConfig.put("contentType", "ART");
         widgetConfig.put("modelId", "2");
         widget.setConfig(widgetConfig);
         return widget;
+    }
+
+    @BeforeEach
+    private void init() throws Exception {
+        this._widgetTypeManager = (IWidgetTypeManager) this.getService(SystemConstants.WIDGET_TYPE_MANAGER);
+        this._pageManager = (IPageManager) this.getService(SystemConstants.PAGE_MANAGER);
+        this.pageModelManager = (IPageModelManager) this.getService(SystemConstants.PAGE_MODEL_MANAGER);
+        this._contentModelManager = (IContentModelManager) this.getService(JacmsSystemConstants.CONTENT_MODEL_MANAGER);
+        this.addReferencingPage();
     }
 
     @AfterEach
@@ -395,5 +396,6 @@ class TestContentModelAction extends ApsAdminBaseTestCase {
 
     private IContentModelManager _contentModelManager;
     private IPageManager _pageManager;
+    private IPageModelManager pageModelManager;
     private IWidgetTypeManager _widgetTypeManager;
 }

@@ -18,6 +18,8 @@ import com.agiletec.aps.system.services.baseconfig.ConfigInterface;
 import com.agiletec.aps.system.services.group.Group;
 import com.agiletec.aps.system.services.page.IPage;
 import com.agiletec.aps.system.services.page.IPageManager;
+import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
+import com.agiletec.aps.system.services.pagemodel.PageModel;
 import com.agiletec.aps.util.ApsWebApplicationUtils;
 import com.agiletec.aps.util.SelectItem;
 import com.agiletec.apsadmin.system.ApsAdminSystemConstants;
@@ -37,6 +39,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.entando.entando.aps.system.services.widgettype.IWidgetTypeManager;
 
 /**
  * Action principale per la redazione contenuti.
@@ -48,8 +51,10 @@ public class ContentAction extends AbstractContentAction {
     private static final EntLogger _logger = EntLogFactory.getSanitizedLogger(ContentAction.class);
 
     private IPageManager pageManager;
+    private IPageModelManager pageModelManager;
     private ConfigInterface configManager;
     private IResourceManager resourceManager;
+    private IWidgetTypeManager widgetTypeManager;
 
     private Map references;
 
@@ -334,7 +339,8 @@ public class ContentAction extends AbstractContentAction {
             Content content = this.getContent();
             if (null != content) {
                 IPage defaultViewerPage = this.getPageManager().getOnlinePage(content.getViewPage());
-                if (null != defaultViewerPage && CmsPageUtil.isOnlineFreeViewerPage(defaultViewerPage, null)) {
+                PageModel model = this.getPageModelManager().getPageModel(defaultViewerPage.getMetadata().getModelCode());
+                if (null != defaultViewerPage && CmsPageUtil.isOnlineFreeViewerPage(defaultViewerPage, model, null, this.getWidgetTypeManager())) {
                     pageItems.add(new SelectItem("", this.getText("label.default")));
                 }
                 if (null == content.getId()) {
@@ -386,6 +392,14 @@ public class ContentAction extends AbstractContentAction {
         this.pageManager = pageManager;
     }
 
+    protected IPageModelManager getPageModelManager() {
+        return pageModelManager;
+    }
+    
+    public void setPageModelManager(IPageModelManager pageModelManager) {
+        this.pageModelManager = pageModelManager;
+    }
+
     protected ConfigInterface getConfigManager() {
         return configManager;
     }
@@ -400,6 +414,14 @@ public class ContentAction extends AbstractContentAction {
 
     public void setResourceManager(IResourceManager resourceManager) {
         this.resourceManager = resourceManager;
+    }
+
+    protected IWidgetTypeManager getWidgetTypeManager() {
+        return widgetTypeManager;
+    }
+    
+    public void setWidgetTypeManager(IWidgetTypeManager widgetTypeManager) {
+        this.widgetTypeManager = widgetTypeManager;
     }
 
     public String getContentId() {

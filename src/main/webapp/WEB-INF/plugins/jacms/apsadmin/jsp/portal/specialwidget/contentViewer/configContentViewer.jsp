@@ -53,13 +53,13 @@
                 <h2 class="h5 margin-small-vertical">
                     <label class="sr-only"><s:text name="name.widget" /></label>
                     <span class="icon fa fa-puzzle-piece" title="<s:text name="name.widget" />"></span>&#32;
-                    <s:property value="%{getTitle(showlet.type.code, showlet.type.titles)}" />
+                    <s:property value="%{getWidgetTypeTitle(showlet.typeCode)}" />
                 </h2>
 
                 <p class="sr-only">
                     <wpsf:hidden name="pageCode" />
                     <wpsf:hidden name="frame" />
-                    <wpsf:hidden name="widgetTypeCode" value="%{showlet.type.code}" />
+                    <wpsf:hidden name="widgetTypeCode" value="%{showlet.typeCode}" />
                 </p>
 
                 <!-- Form errors -->
@@ -74,8 +74,8 @@
                             <s:iterator value="fieldErrors">
                                 <s:iterator value="value">
                                     <li><s:property escapeHtml="false" /></li>
-                                    </s:iterator>
                                 </s:iterator>
+                            </s:iterator>
                         </ul>
                     </div>
                 </s:if>
@@ -93,7 +93,7 @@
                     <s:set var="canEditCurrentContent" value="%{false}" />
                     <c:set var="currentContentGroup"><s:property value="#content.mainGroupCode" escapeHtml="false"/></c:set>
 
-                    <wp:ifauthorized groupName="${currentContentGroup}" permission="editContents"><s:set var="canEditCurrentContent" value="%{true}" /></wp:ifauthorized>
+                    <wpsa:ifauthorized groupName="${currentContentGroup}" permission="editContents"><s:set var="canEditCurrentContent" value="%{true}" /></wpsa:ifauthorized>
 
                         <!-- Edit/Change content -->
                         <fieldset class="col-xs-12 no-padding">

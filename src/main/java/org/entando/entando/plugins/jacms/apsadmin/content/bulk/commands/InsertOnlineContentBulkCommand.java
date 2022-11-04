@@ -11,7 +11,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
-package org.entando.entando.plugins.jacms.aps.system.services.content.command;
+package org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands;
 
 import com.agiletec.aps.system.common.entity.model.FieldError;
 import org.entando.entando.ent.exception.EntException;
@@ -19,9 +19,6 @@ import com.agiletec.aps.system.services.group.IGroupManager;
 import com.agiletec.aps.system.services.lang.ILangManager;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
 import org.apache.commons.lang3.StringUtils;
-import org.entando.entando.aps.system.common.command.constants.ApsCommandErrorCode;
-import org.entando.entando.plugins.jacms.aps.system.services.content.command.common.BaseContentBulkCommand;
-import org.entando.entando.plugins.jacms.aps.system.services.content.command.common.ContentBulkCommandContext;
 
 import java.util.List;
 
@@ -38,11 +35,10 @@ public class InsertOnlineContentBulkCommand extends BaseContentBulkCommand<Conte
 	@Override
 	protected boolean apply(Content content) throws EntException {
 		if (!this.validateContent(content)) {
-			this.getTracer().traceError(content.getId(), ApsCommandErrorCode.NOT_APPLICABLE);
+			this.getErrors().put(content.getId(), ApsCommandErrorCode.NOT_APPLICABLE);
 			return false;
 		} else {
 			this.getApplier().insertOnLineContent(content);
-			this.getTracer().traceSuccess(content.getId());
 			return true;
 		}
 	}

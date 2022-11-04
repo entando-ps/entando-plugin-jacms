@@ -11,14 +11,12 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
-package org.entando.entando.plugins.jacms.aps.system.services.content.command.common;
+package org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.entando.entando.aps.system.common.command.BaseBulkCommand;
-import org.entando.entando.aps.system.common.command.constants.ApsCommandErrorCode;
 import org.entando.entando.plugins.jacms.aps.util.CmsPageUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -35,19 +33,22 @@ import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
 
 public abstract class BaseContentBulkCommand<C extends ContentBulkCommandContext> extends BaseBulkCommand<String, IContentManager, C> implements ApplicationContextAware {
 
-	@Override
-	protected boolean apply(String item) throws EntException {
-		boolean performed = false;
-		Content content = this.getContent(item);
-		if (content == null) {
-			this.getTracer().traceError(item, ApsCommandErrorCode.NOT_FOUND);
-		} else if (!this.isAuthOnContent(content)) {
-			this.getTracer().traceError(item, ApsCommandErrorCode.USER_NOT_ALLOWED);
-		} else {
-			performed = this.apply(content);
-		}
-		return performed;
-	}
+    @Override
+    public boolean apply(String item) throws EntException {
+        boolean performed = false;
+        Content content = this.getContent(item);
+        if (content == null) {
+            this.getErrors().put(item, ApsCommandErrorCode.NOT_FOUND);
+        } else if (!this.isAuthOnContent(content)) {
+            this.getErrors().put(item, ApsCommandErrorCode.USER_NOT_ALLOWED);
+        } else {
+            performed = this.apply(content);
+        }
+        if (performed) {
+            this.getSuccesses().add(item);
+        }
+        return performed;
+    }
 
 	protected boolean isAuthOnContent(Content content) throws EntException {
 		UserDetails user = this.getCurrentUser();

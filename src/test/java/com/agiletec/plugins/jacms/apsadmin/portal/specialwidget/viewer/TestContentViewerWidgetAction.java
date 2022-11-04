@@ -189,7 +189,7 @@ class TestContentViewerWidgetAction extends ApsAdminBaseTestCase {
 			widget = page.getWidgets()[frame];
 			assertNotNull(widget);
 			assertNull(onlinePage.getWidgets()[frame]);
-			assertEquals("content_viewer", widget.getType().getCode());
+			assertEquals("content_viewer", widget.getTypeCode());
 			assertEquals(2, widget.getConfig().size());
 			assertEquals("ART187", widget.getConfig().getProperty("contentId"));
 			assertEquals("1", widget.getConfig().getProperty("modelId"));

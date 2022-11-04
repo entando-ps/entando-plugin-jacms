@@ -321,9 +321,7 @@ class ContentModelManagerTest {
     
     private Widget createMockWidget(String widgetCode) {
         Widget widget = new Widget();
-        WidgetType widgetType = new WidgetType();
-        widgetType.setCode(widgetCode);
-        widget.setType(widgetType);
+        widget.setTypeCode(widgetCode);
         widget.setConfig(new ApsProperties());
         return widget;
     }

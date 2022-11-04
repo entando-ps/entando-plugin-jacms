@@ -22,6 +22,8 @@ import org.entando.entando.ent.exception.EntException;
 import com.agiletec.aps.system.services.lang.Lang;
 import com.agiletec.aps.system.services.page.IPage;
 import com.agiletec.aps.system.services.page.Widget;
+import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
+import com.agiletec.aps.system.services.pagemodel.PageModel;
 import com.agiletec.aps.tags.util.HeadInfoContainer;
 import com.agiletec.aps.util.ApsProperties;
 import com.agiletec.plugins.jacms.aps.system.JacmsSystemConstants;
@@ -43,6 +45,7 @@ public class ContentViewerHelper implements IContentViewerHelper {
 
     private static final EntLogger logger = EntLogFactory.getSanitizedLogger(ContentViewerHelper.class);
 
+    private IPageModelManager pageModelManager;
     private IContentModelManager contentModelManager;
     private IContentManager contentManager;
     private IContentDispenser contentDispenser;
@@ -141,7 +144,8 @@ public class ContentViewerHelper implements IContentViewerHelper {
             return;
         }
         Integer currentFrame = (Integer) reqCtx.getExtraParam(SystemConstants.EXTRAPAR_CURRENT_FRAME);
-        if (currentFrame == page.getMetadata().getModel().getMainFrame() && null != renderInfo) {
+        PageModel pageModel = this.getPageModelManager().getPageModel(page.getMetadata().getModelCode());
+        if (currentFrame == pageModel.getMainFrame() && null != renderInfo) {
             Object extraTitle = renderInfo.getAttributeValues().get(JacmsSystemConstants.ATTRIBUTE_ROLE_TITLE);
             if (null != extraTitle) {
                 reqCtx.addExtraParam(SystemConstants.EXTRAPAR_EXTRA_PAGE_TITLES, extraTitle);
@@ -254,6 +258,14 @@ public class ContentViewerHelper implements IContentViewerHelper {
                 }
             }
         }
+    }
+
+    protected IPageModelManager getPageModelManager() {
+        return pageModelManager;
+    }
+    
+    public void setPageModelManager(IPageModelManager pageModelManager) {
+        this.pageModelManager = pageModelManager;
     }
 
     protected IContentModelManager getContentModelManager() {

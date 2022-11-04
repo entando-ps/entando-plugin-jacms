@@ -15,8 +15,6 @@ package org.entando.entando.plugins.jacms.apsadmin.content.bulk.util;
 
 import java.util.Date;
 
-import org.entando.entando.aps.system.common.command.constants.ApsCommandStatus;
-
 public class SmallBulkCommandReport {
 	
 	public String getCommandId() {
@@ -54,13 +52,6 @@ public class SmallBulkCommandReport {
 		this.applyErrors = applyErrors;
 	}
 	
-	public ApsCommandStatus getStatus() {
-		return status;
-	}
-	public void setStatus(ApsCommandStatus status) {
-		this.status = status;
-	}
-	
 	public Date getEndingTime() {
 		return endingTime;
 	}
@@ -73,7 +64,6 @@ public class SmallBulkCommandReport {
 	private int applyTotal;
 	private int applySuccesses;
 	private int applyErrors;
-	private ApsCommandStatus status;
 	private Date endingTime;
 	
 }
