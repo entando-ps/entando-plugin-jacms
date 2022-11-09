@@ -13,6 +13,7 @@
  */
 package org.entando.entando.plugins.jacms.apsadmin.content.bulk;
 
+import com.agiletec.aps.system.EntThreadLocal;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -31,6 +32,7 @@ import com.agiletec.apsadmin.system.ApsAdminSystemConstants;
 import com.agiletec.plugins.jacms.aps.system.services.content.IContentManager;
 import com.opensymphony.xwork2.Action;
 import java.util.Date;
+import org.entando.entando.aps.system.services.tenant.ITenantManager;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.BaseContentPropertyBulkCommand;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.ContentPropertyBulkCommandContext;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.JoinCategoryBulkCommand;
@@ -82,9 +84,13 @@ public class ContentCategoryBulkAction extends AbstractTreeAction {
 				if (categories == null) {
 					return INPUT;
 				} else {
+                    String tenantCode = ApsWebApplicationUtils.extractCurrentTenantCode(this.getRequest());
                     BaseContentPropertyBulkCommand<Category> command = this.initBulkCommand(categories);
                     this.getSelectedIds().parallelStream().forEach(contentId -> {
                     try {
+                        if (null != tenantCode) {
+                            EntThreadLocal.set(ITenantManager.THREAD_LOCAL_TENANT_CODE, tenantCode);
+                        }
                         command.apply(contentId);
                     } catch (Exception e) {
                         _logger.error("Error executing " +command.getClass().getName() + " on contents ");

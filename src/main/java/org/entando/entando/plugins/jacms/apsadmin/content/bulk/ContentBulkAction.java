@@ -13,6 +13,7 @@
  */
 package org.entando.entando.plugins.jacms.apsadmin.content.bulk;
 
+import com.agiletec.aps.system.EntThreadLocal;
 import java.util.Set;
 
 import org.entando.entando.ent.util.EntLogging.EntLogger;
@@ -23,6 +24,7 @@ import com.agiletec.aps.util.ApsWebApplicationUtils;
 import com.agiletec.apsadmin.system.BaseAction;
 import com.agiletec.plugins.jacms.aps.system.services.content.IContentManager;
 import java.util.Date;
+import org.entando.entando.aps.system.services.tenant.ITenantManager;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.BaseContentBulkCommand;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.ContentBulkCommandContext;
 import org.entando.entando.plugins.jacms.apsadmin.content.bulk.commands.DeleteContentBulkCommand;
@@ -57,9 +59,13 @@ public class ContentBulkAction extends BaseAction {
             if (!this.checkAllowedContents()) {
                 return "list";
             } else {
+                String tenantCode = ApsWebApplicationUtils.extractCurrentTenantCode(this.getRequest());
                 BaseContentBulkCommand<ContentBulkCommandContext> command = this.initBulkCommand(commandBeanName);
                 this.getSelectedIds().parallelStream().forEach(id -> {
                     try {
+                        if (null != tenantCode) {
+                            EntThreadLocal.set(ITenantManager.THREAD_LOCAL_TENANT_CODE, tenantCode);
+                        }
                         command.apply(id);
                     } catch (Exception e) {
                         _logger.error("Error executing " + command.getClass().getName() + " on content " + id);
