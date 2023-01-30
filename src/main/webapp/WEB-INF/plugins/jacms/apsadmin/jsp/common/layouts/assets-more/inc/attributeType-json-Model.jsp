@@ -43,5 +43,6 @@ This converter shall always return a json object like this:
 		"getConfigParameter(\"<PARAM_NAME>\")": null, 
 		"getCurrentPage()": null, 
 		"getCurrentLang()": null, 
-		"getCurrentWidget()": null
+		"getCurrentWidget()": null,
+                "getResourceRootUrl()": null
 	}
