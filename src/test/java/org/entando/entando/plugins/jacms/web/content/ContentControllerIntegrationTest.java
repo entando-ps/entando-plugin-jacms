@@ -34,8 +34,11 @@ import com.agiletec.aps.system.common.FieldSearchFilter;
 import com.agiletec.aps.system.common.entity.IEntityManager;
 import com.agiletec.aps.system.common.entity.IEntityTypesConfigurer;
 import com.agiletec.aps.system.common.entity.model.EntitySearchFilter;
+import com.agiletec.aps.system.common.entity.model.attribute.AttributeInterface;
+import com.agiletec.aps.system.common.entity.model.attribute.CompositeAttribute;
 import com.agiletec.aps.system.common.entity.model.attribute.DateAttribute;
 import com.agiletec.aps.system.common.entity.model.attribute.ListAttribute;
+import com.agiletec.aps.system.common.entity.model.attribute.MonoListAttribute;
 import com.agiletec.aps.system.services.group.Group;
 import com.agiletec.aps.system.services.group.GroupUtilizer;
 import com.agiletec.aps.system.services.page.IPage;
@@ -52,9 +55,13 @@ import com.agiletec.aps.util.DateConverter;
 import com.agiletec.aps.util.FileTextReader;
 import com.agiletec.plugins.jacms.aps.system.services.content.IContentManager;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
+import com.agiletec.plugins.jacms.aps.system.services.content.model.ContentDto;
 import com.agiletec.plugins.jacms.aps.system.services.content.model.SymbolicLink;
+import com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.ImageAttribute;
+import com.agiletec.plugins.jacms.aps.system.services.resource.IResourceManager;
 import com.agiletec.plugins.jacms.aps.system.services.resource.model.ResourceInterface;
 import com.agiletec.plugins.jacms.aps.system.services.searchengine.ICmsSearchEngineManager;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import java.io.InputStream;
@@ -71,7 +78,9 @@ import org.entando.entando.plugins.jacms.web.content.validator.BatchContentStatu
 import org.entando.entando.plugins.jacms.web.content.validator.ContentStatusRequest;
 import org.entando.entando.plugins.jacms.web.resource.request.CreateResourceRequest;
 import org.entando.entando.web.AbstractControllerIntegrationTest;
+import org.entando.entando.web.AbstractControllerIntegrationTest.ContextOfControllerTests;
 import org.entando.entando.web.analysis.AnalysisControllerDiffAnalysisEngineTestsStubs;
+import org.entando.entando.web.common.model.PagedRestResponse;
 import org.entando.entando.web.utils.OAuth2TestUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
@@ -106,6 +115,9 @@ class ContentControllerIntegrationTest extends AbstractControllerIntegrationTest
     private IContentManager contentManager;
 
     @Autowired
+    private IResourceManager resourceManager;
+
+    @Autowired
     private ICmsSearchEngineManager searchEngineManager;
 
     @Autowired
@@ -124,6 +136,7 @@ class ContentControllerIntegrationTest extends AbstractControllerIntegrationTest
                 .withAuthorization(Group.FREE_GROUP_NAME, "editor", Permission.CONTENT_EDITOR)
                 .build();
         ResultActions result = this.performGetContent("ART180", "1", true, null, true, user);
+        result.andDo(print());
         String result1 = result.andReturn().getResponse().getContentAsString();
         System.out.println(result1);
         result.andExpect(status().isOk());
@@ -2562,7 +2575,12 @@ class ContentControllerIntegrationTest extends AbstractControllerIntegrationTest
         return result;
     }
 
+
     private ResultActions performCreateResource(String accessToken, String type, String group, String mimeType) throws Exception {
+        return performCreateResource(accessToken, type, group, mimeType, null);
+    }
+
+    private ResultActions performCreateResource(String accessToken, String type, String group, String mimeType, String correlationCode) throws Exception {
         String path = String.format("/plugins/cms/assets", type);
         String contents = "content";
 
@@ -2570,6 +2588,9 @@ class ContentControllerIntegrationTest extends AbstractControllerIntegrationTest
         resourceRequest.setType(type);
         resourceRequest.setCategories(new ArrayList<>());
         resourceRequest.setGroup(group);
+        if (StringUtils.isNotBlank(correlationCode)) {
+            resourceRequest.setCorrelationCode(correlationCode);
+        }
 
         MockMultipartFile file;
         if ("image".equals(type)) {
@@ -3172,6 +3193,7 @@ class ContentControllerIntegrationTest extends AbstractControllerIntegrationTest
                 .andExpect(jsonPath("$.payload[8].id", is("EVN191")));
     }
 
+    @Test
     void testFilteredContent_1() throws Throwable {
         UserDetails user = new OAuth2TestUtils.UserBuilder("jack_bauer", "0x24")
                 .withAuthorization(Group.FREE_GROUP_NAME, "tempRole", Permission.BACKOFFICE).build();
@@ -3801,6 +3823,7 @@ class ContentControllerIntegrationTest extends AbstractControllerIntegrationTest
         }
     }
 
+    @Test
     void testGetPageOfflineNoWidgetErrorMessage() throws Exception {
         String pageCode = "page_error_test";
         try {
@@ -4366,13 +4389,23 @@ class ContentControllerIntegrationTest extends AbstractControllerIntegrationTest
                         .param("filter[0].attribute", IContentManager.ENTITY_TYPE_CODE_FILTER_KEY)
                         .param("filter[0].operator", "eq")
                         .param("filter[0].value", "EVN")
-                        .param("forLinkingWithOwnerGroup", "GROUP1")
-                        .param("forLinkingWithExtraGroups[0]", "GROUP2")
-                        .param("forLinkingWithExtraGroups[1]", "GROUP3")
+                        .param("status", "published")
+                        .param("forLinkingWithOwnerGroup", "group1")
+                        .param("forLinkingWithExtraGroups[0]", "group2")
+                        .param("forLinkingWithExtraGroups[1]", "group3")
+                        .param("page", "1")
+                        .param("pageSize", "5")
                         .header("Authorization", "Bearer " + accessToken));
         result.andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.payload", Matchers.hasSize(Matchers.greaterThan(0))));
+                // checking pagination
+                .andExpect(jsonPath("$.payload", Matchers.hasSize(5)))
+                .andExpect(jsonPath("$.metaData.pageSize", Matchers.equalTo(5)))
+                .andExpect(jsonPath("$.metaData.totalItems", Matchers.equalTo(9)))
+                // checking owner group filter
+                .andExpect(jsonPath("$.payload[?(@.mainGroup == 'free')]", Matchers.hasSize(Matchers.greaterThan(0))))
+                // checking join groups filter
+                .andExpect(jsonPath("$.payload[?(@.mainGroup == 'coach')].groups[*]", Matchers.hasItem("group1")));
     }
 
     @Test
@@ -4563,7 +4596,7 @@ class ContentControllerIntegrationTest extends AbstractControllerIntegrationTest
                 .andExpect(jsonPath("$.payload.total", is(total)))
                 .andExpect(jsonPath("$.payload.latestModificationDate", is(dateString)));
     }
-
+    
     @Test
     void testAddCloneDeleteContent() throws Exception {
         String newContentId = null;
@@ -4700,6 +4733,28 @@ class ContentControllerIntegrationTest extends AbstractControllerIntegrationTest
     }
 
     @Test
+    void testCloneUnauthorizedContent() throws Exception {
+        ResultActions result = null;
+        try {
+            UserDetails user = new OAuth2TestUtils.UserBuilder("jack_bauer", "0x24")
+                .withAuthorization(Group.FREE_GROUP_NAME, "custom_role", Permission.CONTENT_EDITOR, Permission.ENTER_BACKEND)
+                .build();
+            String accessToken = mockOAuthInterceptor(user);
+            String contentToClone = "RAH101";
+            result = mockMvc
+                    .perform(post("/plugins/cms/contents/{code}/clone", contentToClone)
+                            .contentType(MediaType.APPLICATION_JSON_VALUE)
+                            .header("Authorization", "Bearer " + accessToken))
+                    .andDo(print()).andExpect(status().isForbidden());
+        } catch(Exception e) {
+            String bodyResult = result.andReturn().getResponse().getContentAsString();
+            String clonedContentId = JsonPath.read(bodyResult, "$.payload.id");
+            this.contentManager.deleteContent(clonedContentId);
+            throw e;
+        }
+    }
+
+    @Test
     void loadFreeContentsWithUserInFreeGroup() throws Throwable {
         UserDetails user = new OAuth2TestUtils.UserBuilder("jack_bauer", "0x24")
                 .withAuthorization(Group.FREE_GROUP_NAME, "tempRole", Permission.BACKOFFICE).build();
@@ -4744,10 +4799,7 @@ class ContentControllerIntegrationTest extends AbstractControllerIntegrationTest
                         .header("Authorization", "Bearer " + accessToken));
         result.andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.payload.size()", is(3)))
-                .andExpect(jsonPath("$.payload[0].id", is("EVN103")))
-                .andExpect(jsonPath("$.payload[1].id", is("EVN25")))
-                .andExpect(jsonPath("$.payload[2].id", is("EVN41")));
+                .andExpect(jsonPath("$.payload.size()", is(11)));
     }
 
     @Test
@@ -4780,6 +4832,59 @@ class ContentControllerIntegrationTest extends AbstractControllerIntegrationTest
                 .andExpect(jsonPath("$.payload[10].id", is("EVN41")));
     }
 
+    @Test
+    void testGetContentsAnonymousUser() throws Exception {
+        ResultActions result = mockMvc
+                .perform(get("/plugins/cms/contents")
+                        .param("status", IContentService.STATUS_ONLINE)
+                        .param("mode", IContentService.MODE_FULL)
+                        .param("page", "1")
+                        .param("pageSize", "500"));
+
+        String stringResponse = result.andDo(resultPrint())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.payload", Matchers.hasSize(Matchers.greaterThan(0))))
+                .andReturn().getResponse().getContentAsString();
+
+        PagedRestResponse<ContentDto> response = new ObjectMapper().readValue(stringResponse,
+                new TypeReference<PagedRestResponse<ContentDto>>() {
+                });
+
+        // verify that an anonymous user can retrieve only public contents
+        for (ContentDto content : response.getPayload()) {
+            boolean isPublic = content.getMainGroup().equals(Group.FREE_GROUP_NAME);
+            if (!isPublic) {
+                if (content.getGroups() != null) {
+                    for (String group : content.getGroups()) {
+                        if (group.equals(Group.FREE_GROUP_NAME)) {
+                            isPublic = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            Assertions.assertTrue(isPublic);
+        }
+    }
+
+    @Test
+    void testGetDraftContents() throws Exception {
+        UserDetails user = new OAuth2TestUtils.UserBuilder("jack_bauer", "0x24").grantedToRoleAdmin().build();
+        String accessToken = mockOAuthInterceptor(user);
+
+        ResultActions result = mockMvc
+                .perform(get("/plugins/cms/contents")
+                        .param("status", IContentService.STATUS_DRAFT)
+                        .param("mode", IContentService.MODE_LIST)
+                        .header("Authorization", "Bearer " + accessToken));
+
+        result.andDo(resultPrint())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.payload[?(@.onLine == false)]",
+                        Matchers.hasSize(Matchers.greaterThan(0))));
+    }
+
+    @Test
     void testContentRelationForGroup() throws Exception {
         String newContentId = null;
         try {
@@ -4828,5 +4933,120 @@ class ContentControllerIntegrationTest extends AbstractControllerIntegrationTest
             }
         }
     }
+    
+    @Test
+    void testAddUpdateDeleteContentWithMonolistOfCompositeOfAttributeImageWithId() throws Exception {
+        this.testAddUpdateDeleteContentWithMonolistOfCompositeOfAttributeImage(false);
+    }
+    
+    @Test
+    void testAddUpdateDeleteContentWithMonolistOfCompositeOfAttributeImageWithCorrelation() throws Exception {
+        this.testAddUpdateDeleteContentWithMonolistOfCompositeOfAttributeImage(true);
+    }
+    
+    private void testAddUpdateDeleteContentWithMonolistOfCompositeOfAttributeImage(boolean useCorrelation) throws Exception {
+        String newContentId = null;
+        String resourceId = null;
+        String accessToken = this.createAccessToken();
+        String contentType = "MCI";
+        try {
+            Assertions.assertNull(this.contentManager.getEntityPrototype(contentType));
 
+            this.executeContentTypePost("1_POST_type_with_monolist_composite_image.json", accessToken,
+                    status().isCreated());
+            Assertions.assertNotNull(this.contentManager.getEntityPrototype(contentType));
+
+            ResultActions resourceResult = this.performCreateResource(accessToken, "image", "test_correlCode", "free", null, null, "application/jpeg");
+            
+            resourceId = JsonPath.read(resourceResult.andReturn().getResponse().getContentAsString(), "$.payload.id");
+            ResourceInterface resource = this.resourceManager.loadResource(resourceId);
+            Assertions.assertNotNull(resource);
+            Assertions.assertEquals("test_correlCode", resource.getCorrelationCode());
+
+            ResultActions result = (useCorrelation) ?
+                    this.executeContentPost("1_POST_valid_with_monolist_composite_image_cor.json",
+                    accessToken, status().isOk()) : 
+                    this.executeContentPost("1_POST_valid_with_monolist_composite_image.json",
+                    accessToken, status().isOk(), resourceId);
+            result.andDo(print())
+                    .andExpect(jsonPath("$.payload.size()", is(1)))
+                    .andExpect(jsonPath("$.errors.size()", is(0)))
+                    .andExpect(jsonPath("$.metaData.size()", is(0)))
+                    .andExpect(jsonPath("$.payload[0].id", Matchers.anything()))
+                    .andExpect(jsonPath("$.payload[0].typeCode", is(contentType)))
+                    .andExpect(jsonPath("$.payload[0].typeDescription", is("Content Type MCI")))
+                    .andExpect(jsonPath("$.payload[0].description", is("1st monolist attribute")))
+                    .andExpect(jsonPath("$.payload[0].attributes[0].elements.size()", is(1)))
+                    .andExpect(jsonPath("$.payload[0].attributes[0].elements[0].compositeelements.size()", is(1)))
+                    .andExpect(jsonPath("$.payload[0].attributes[0].elements[0].compositeelements[0].code", is("image")))
+                    .andExpect(jsonPath("$.payload[0].attributes[0].elements[0].compositeelements[0].values.it.type", is("image")));
+
+            String bodyResult = result.andReturn().getResponse().getContentAsString();
+            newContentId = JsonPath.read(bodyResult, "$.payload[0].id");
+            Content newContent = this.contentManager.loadContent(newContentId, false);
+            Assertions.assertNotNull(newContent);
+            AttributeInterface attr = newContent.getAttribute("mono-compo-image");
+            Assertions.assertTrue(attr instanceof MonoListAttribute);
+            List<AttributeInterface> attributes = ((MonoListAttribute) attr).getAttributes();
+            Assertions.assertEquals(1, attributes.size());
+            for (int i = 0; i < attributes.size(); i++) {
+                AttributeInterface element = attributes.get(i);
+                Assertions.assertTrue(element instanceof CompositeAttribute);
+                Map<String, AttributeInterface> map = ((CompositeAttribute) element).getAttributeMap();
+                Assertions.assertEquals(1, map.size());
+                ImageAttribute imageAttr = (ImageAttribute) map.get("image");
+                Assertions.assertEquals(resourceId, imageAttr.getResource().getId());
+                Assertions.assertEquals("Entando test", imageAttr.getTextForLang("it"));
+            }
+            
+            ResultActions resultPut = (useCorrelation) ? 
+                    this.executeContentPut("1_PUT_valid_with_monolist_composite_image_cor.json", 
+                            newContentId, accessToken, status().isOk()) : 
+                    this.executeContentPut("1_PUT_valid_with_monolist_composite_image.json", 
+                            newContentId, accessToken, status().isOk(), resourceId);
+            resultPut.andExpect(jsonPath("$.payload.size()", is(1)))
+                    .andExpect(jsonPath("$.errors.size()", is(0)))
+                    .andExpect(jsonPath("$.metaData.size()", is(0)))
+                    .andExpect(jsonPath("$.payload[0].id", Matchers.anything()))
+                    .andExpect(jsonPath("$.payload[0].typeCode", is(contentType)))
+                    .andExpect(jsonPath("$.payload[0].typeDescription", is("Content Type MCI")))
+                    .andExpect(jsonPath("$.payload[0].description", is("1st monolist attribute")))
+                    .andExpect(jsonPath("$.payload[0].attributes[0].elements.size()", is(2)))
+                    .andExpect(jsonPath("$.payload[0].attributes[0].elements[0].compositeelements.size()", is(1)))
+                    .andExpect(jsonPath("$.payload[0].attributes[0].elements[0].compositeelements[0].code", is(
+                            "image")))
+                    .andExpect(jsonPath("$.payload[0].attributes[0].elements[0].compositeelements[0].values.it.type",
+                            is("image")));
+            newContent = this.contentManager.loadContent(newContentId, false);
+            Assertions.assertNotNull(newContent);
+            attr = newContent.getAttribute("mono-compo-image");
+            Assertions.assertTrue(attr instanceof MonoListAttribute);
+             attributes = ((MonoListAttribute) attr).getAttributes();
+            Assertions.assertEquals(2, attributes.size());
+            for (int i = 0; i < attributes.size(); i++) {
+                AttributeInterface element = attributes.get(i);
+                Assertions.assertTrue(element instanceof CompositeAttribute);
+                Map<String, AttributeInterface> map = ((CompositeAttribute) element).getAttributeMap();
+                Assertions.assertEquals(1, map.size());
+                ImageAttribute imageAttr = (ImageAttribute) map.get("image");
+                Assertions.assertEquals(resourceId, imageAttr.getResource().getId());
+                Assertions.assertEquals("Entando test " + (i+1), imageAttr.getTextForLang("it"));
+            }
+        } finally {
+            if (null != resourceId) {
+                performDeleteResource(accessToken, "image", resourceId)
+                        .andExpect(status().isOk());
+            }
+            if (null != newContentId) {
+                Content newContent = this.contentManager.loadContent(newContentId, false);
+                if (null != newContent) {
+                    this.contentManager.deleteContent(newContent);
+                }
+            }
+            if (null != this.contentManager.getEntityPrototype(contentType)) {
+                ((IEntityTypesConfigurer) this.contentManager).removeEntityPrototype(contentType);
+            }
+        }
+    }
+    
 }

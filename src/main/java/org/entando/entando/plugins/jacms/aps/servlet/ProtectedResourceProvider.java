@@ -112,12 +112,14 @@ public class ProtectedResourceProvider implements IProtectedResourceProvider {
                 }
                 this.createResponse(response, resource, instance);
                 return true;
+            } else {
+                this.executeLoginRedirect(request, response);
+                return true;
             }
         } catch (Throwable t) {
             logger.error("Error extracting protected resource", t);
             throw new EntException("Error extracting protected resource", t);
         }
-        return false;
     }
 
     protected boolean isAuthOnProtectedRes(UserDetails currentUser, String resourceId, String contentId) {
@@ -164,7 +166,7 @@ public class ProtectedResourceProvider implements IProtectedResourceProvider {
             Lang defaultLang = this.getLangManager().getDefaultLang();
             String url = this.getUrlManager().createURL(page, defaultLang, params);
             response.sendRedirect(url);
-        } catch (Throwable t) {
+        } catch (Exception t) {
             logger.error("Error executing redirect login page", t);
             throw new ServletException("Error executing redirect login page", t);
         }
@@ -177,7 +179,6 @@ public class ProtectedResourceProvider implements IProtectedResourceProvider {
     protected IResourceManager getResourceManager() {
         return resourceManager;
     }
-
     public void setResourceManager(IResourceManager resourceManager) {
         this.resourceManager = resourceManager;
     }
@@ -185,7 +186,6 @@ public class ProtectedResourceProvider implements IProtectedResourceProvider {
     protected IContentAuthorizationHelper getContentAuthorizationHelper() {
         return contentAuthorizationHelper;
     }
-
     public void setContentAuthorizationHelper(IContentAuthorizationHelper contentAuthorizationHelper) {
         this.contentAuthorizationHelper = contentAuthorizationHelper;
     }
@@ -193,7 +193,6 @@ public class ProtectedResourceProvider implements IProtectedResourceProvider {
     protected IUserManager getUserManager() {
         return userManager;
     }
-
     public void setUserManager(IUserManager userManager) {
         this.userManager = userManager;
     }
@@ -201,7 +200,6 @@ public class ProtectedResourceProvider implements IProtectedResourceProvider {
     protected IAuthorizationManager getAuthorizationManager() {
         return authorizationManager;
     }
-
     public void setAuthorizationManager(IAuthorizationManager authorizationManager) {
         this.authorizationManager = authorizationManager;
     }
@@ -209,7 +207,6 @@ public class ProtectedResourceProvider implements IProtectedResourceProvider {
     protected IURLManager getUrlManager() {
         return urlManager;
     }
-
     public void setUrlManager(IURLManager urlManager) {
         this.urlManager = urlManager;
     }
@@ -217,7 +214,6 @@ public class ProtectedResourceProvider implements IProtectedResourceProvider {
     protected IPageManager getPageManager() {
         return pageManager;
     }
-
     public void setPageManager(IPageManager pageManager) {
         this.pageManager = pageManager;
     }
@@ -225,7 +221,6 @@ public class ProtectedResourceProvider implements IProtectedResourceProvider {
     protected ILangManager getLangManager() {
         return langManager;
     }
-
     public void setLangManager(ILangManager langManager) {
         this.langManager = langManager;
     }
