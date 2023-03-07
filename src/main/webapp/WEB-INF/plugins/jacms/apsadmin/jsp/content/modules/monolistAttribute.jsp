@@ -106,7 +106,7 @@
 					<s:elseif test="#attribute.type == 'Number'">
 						<s:include value="/WEB-INF/apsadmin/jsp/entity/modules/numberAttribute.jsp" />
 					</s:elseif>
-					<s:elseif test="#attribute.type == 'Monotext'">
+					<s:elseif test="#attribute.type == 'Monotext' || #attribute.type == 'Email'">
 						<s:include value="/WEB-INF/apsadmin/jsp/entity/modules/monotextAttribute.jsp" />
 					</s:elseif>
 					<s:elseif test="#attribute.type == 'Text'">
